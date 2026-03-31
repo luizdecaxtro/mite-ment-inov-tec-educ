@@ -1,0 +1,509 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MITe – Mentoria da Inovação Tecnológica em Educação</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg: #0a0a0f;
+    --surface: #111118;
+    --card: #16161f;
+    --border: rgba(255,255,255,0.08);
+    --accent: #e5b43a;
+    --accent2: #4f8ef7;
+    --accent3: #34d399;
+    --text: #f0f0f5;
+    --muted: #8888aa;
+    --font-display: 'Bebas Neue', sans-serif;
+    --font-body: 'Plus Jakarta Sans', sans-serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); overflow-x:hidden; }
+
+  /* NAV */
+  nav {
+    position:fixed; top:0; left:0; right:0; z-index:100;
+    background:linear-gradient(to bottom, rgba(10,10,15,0.98), transparent);
+    padding:1.2rem 4%;
+    display:flex; align-items:center; justify-content:space-between;
+  }
+  .logo { font-family:var(--font-display); font-size:2rem; letter-spacing:2px; color:var(--accent); }
+  .logo span { color:var(--text); }
+  nav ul { list-style:none; display:flex; gap:2rem; }
+  nav ul a { color:var(--muted); text-decoration:none; font-size:.9rem; font-weight:500; transition:.2s; }
+  nav ul a:hover { color:var(--text); }
+  .btn-inscricao {
+    background:var(--accent); color:#000; font-weight:700; font-size:.85rem;
+    padding:.6rem 1.4rem; border-radius:6px; text-decoration:none;
+    letter-spacing:.5px; transition:.2s;
+  }
+  .btn-inscricao:hover { background:#f5c84a; }
+
+  /* HERO */
+  .hero {
+    min-height:100vh; display:flex; align-items:center;
+    background:url('https://images.unsplash.com/photo-1519389950473-47ba0277781c?w=1600&q=80') center/cover no-repeat;
+    position:relative; padding:0 4%;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background:linear-gradient(135deg, rgba(10,10,15,.95) 40%, rgba(10,10,15,.6) 100%);
+  }
+  .hero-content { position:relative; max-width:750px; padding-top:6rem; }
+  .hero-badge {
+    display:inline-flex; align-items:center; gap:.5rem;
+    background:rgba(229,180,58,.12); border:1px solid rgba(229,180,58,.3);
+    color:var(--accent); font-size:.78rem; font-weight:700;
+    padding:.4rem 1rem; border-radius:50px; margin-bottom:1.5rem; letter-spacing:1px;
+    text-transform:uppercase;
+  }
+  .hero h1 {
+    font-family:var(--font-display); font-size:clamp(3rem,7vw,6rem);
+    line-height:.95; letter-spacing:2px; margin-bottom:1rem;
+  }
+  .hero h1 span { color:var(--accent); }
+  .hero p { font-size:1.15rem; color:var(--muted); line-height:1.7; max-width:560px; margin-bottom:2.5rem; }
+  .hero-ctas { display:flex; gap:1rem; flex-wrap:wrap; }
+  .btn-primary {
+    background:var(--accent); color:#000; font-weight:800; font-size:1rem;
+    padding:.9rem 2.2rem; border-radius:8px; text-decoration:none;
+    transition:.2s; letter-spacing:.5px;
+  }
+  .btn-primary:hover { transform:translateY(-2px); background:#f5c84a; }
+  .btn-ghost {
+    border:1px solid var(--border); color:var(--text); font-weight:600; font-size:1rem;
+    padding:.9rem 2.2rem; border-radius:8px; text-decoration:none;
+    transition:.2s; background:rgba(255,255,255,.04);
+  }
+  .btn-ghost:hover { border-color:var(--accent); color:var(--accent); }
+  .hero-stats { display:flex; gap:3rem; margin-top:3.5rem; flex-wrap:wrap; }
+  .stat-item .num { font-family:var(--font-display); font-size:2.5rem; color:var(--accent); }
+  .stat-item .lbl { font-size:.8rem; color:var(--muted); text-transform:uppercase; letter-spacing:1px; }
+
+  /* SECTIONS */
+  section { padding:5rem 4%; }
+  .section-label {
+    font-size:.75rem; font-weight:700; letter-spacing:3px; text-transform:uppercase;
+    color:var(--accent); margin-bottom:.8rem;
+  }
+  .section-title {
+    font-family:var(--font-display); font-size:clamp(2.2rem,5vw,3.5rem);
+    letter-spacing:1px; line-height:1.05; margin-bottom:1.2rem;
+  }
+  .section-sub { color:var(--muted); font-size:1.05rem; line-height:1.7; max-width:600px; }
+
+  /* MÓDULOS / NETFLIX GRID */
+  .netflix-section { background:var(--surface); }
+  .modules-row { display:flex; gap:1rem; overflow-x:auto; padding-bottom:1rem; scroll-snap-type:x mandatory; }
+  .modules-row::-webkit-scrollbar { height:4px; }
+  .modules-row::-webkit-scrollbar-thumb { background:var(--border); border-radius:2px; }
+  .module-card {
+    min-width:220px; background:var(--card); border-radius:12px;
+    border:1px solid var(--border); overflow:hidden; cursor:pointer;
+    scroll-snap-align:start; transition:.3s; flex-shrink:0;
+  }
+  .module-card:hover { transform:scale(1.04); border-color:var(--accent); }
+  .module-thumb {
+    height:130px; display:flex; align-items:center; justify-content:center;
+    font-size:3rem; position:relative;
+  }
+  .module-num {
+    position:absolute; top:.5rem; left:.7rem;
+    font-family:var(--font-display); font-size:1.4rem; color:rgba(255,255,255,.15);
+  }
+  .module-info { padding:.9rem 1rem; }
+  .module-info h3 { font-size:.9rem; font-weight:700; margin-bottom:.3rem; }
+  .module-info p { font-size:.75rem; color:var(--muted); line-height:1.5; }
+  .module-duration {
+    display:inline-flex; align-items:center; gap:.3rem;
+    background:rgba(255,255,255,.06); border-radius:4px;
+    font-size:.7rem; color:var(--muted); padding:.25rem .5rem; margin-top:.5rem;
+  }
+  /* Módulo cores */
+  .m1 { background:linear-gradient(135deg,#1a1040,#2d1b69); }
+  .m2 { background:linear-gradient(135deg,#0f2a1a,#1a5c34); }
+  .m3 { background:linear-gradient(135deg,#2a1000,#7a3000); }
+  .m4 { background:linear-gradient(135deg,#00162a,#005080); }
+  .m5 { background:linear-gradient(135deg,#1a0a2a,#6b21a8); }
+  .m6 { background:linear-gradient(135deg,#1a1200,#5a4000); }
+  .m7 { background:linear-gradient(135deg,#0a1a2a,#1e4060); }
+  .m8 { background:linear-gradient(135deg,#1a0010,#800040); }
+
+  /* GAMIFICAÇÃO */
+  .gamif-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(240px,1fr)); gap:1.5rem; margin-top:2.5rem; }
+  .gamif-card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:1.5rem; transition:.2s;
+  }
+  .gamif-card:hover { border-color:var(--accent2); }
+  .gamif-icon { font-size:2.2rem; margin-bottom:1rem; }
+  .gamif-card h3 { font-size:1rem; font-weight:700; margin-bottom:.5rem; }
+  .gamif-card p { font-size:.85rem; color:var(--muted); line-height:1.6; }
+  .progress-bar { background:rgba(255,255,255,.08); border-radius:10px; height:6px; margin-top:1rem; }
+  .progress-fill { height:100%; border-radius:10px; background:var(--accent); }
+
+  /* TRILHA DE APRENDIZAGEM */
+  .trilha { background:var(--surface); }
+  .trilha-steps { display:flex; flex-direction:column; gap:0; max-width:700px; margin-top:2.5rem; }
+  .trilha-step {
+    display:flex; gap:1.5rem; position:relative; padding-bottom:2rem;
+  }
+  .trilha-step::before {
+    content:''; position:absolute; left:22px; top:44px; bottom:0; width:2px;
+    background:var(--border);
+  }
+  .trilha-step:last-child::before { display:none; }
+  .step-dot {
+    width:44px; height:44px; border-radius:50%; flex-shrink:0;
+    background:var(--card); border:2px solid var(--border);
+    display:flex; align-items:center; justify-content:center;
+    font-weight:800; font-size:.9rem; z-index:1;
+  }
+  .step-dot.active { border-color:var(--accent); color:var(--accent); background:rgba(229,180,58,.1); }
+  .step-body { flex:1; }
+  .step-body h3 { font-size:1rem; font-weight:700; margin-bottom:.3rem; }
+  .step-body p { font-size:.85rem; color:var(--muted); line-height:1.6; }
+
+  /* MATERIAIS */
+  .materiais-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(280px,1fr)); gap:1.5rem; margin-top:2.5rem; }
+  .material-card {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:1.8rem; display:flex; gap:1.2rem; align-items:flex-start; transition:.2s;
+  }
+  .material-card:hover { border-color:var(--accent3); }
+  .material-icon {
+    width:52px; height:52px; border-radius:10px; flex-shrink:0;
+    display:flex; align-items:center; justify-content:center; font-size:1.6rem;
+  }
+  .ic-manual { background:rgba(79,142,247,.15); }
+  .ic-gloss { background:rgba(52,211,153,.15); }
+  .ic-video { background:rgba(229,180,58,.15); }
+  .ic-quiz { background:rgba(168,85,247,.15); }
+  .material-body h3 { font-size:1rem; font-weight:700; margin-bottom:.4rem; }
+  .material-body p { font-size:.83rem; color:var(--muted); line-height:1.6; }
+  .tag {
+    display:inline-block; background:rgba(255,255,255,.07);
+    font-size:.7rem; padding:.2rem .6rem; border-radius:4px;
+    color:var(--muted); margin-top:.6rem; font-weight:600;
+  }
+
+  /* AUTOR */
+  .autor-section { background:var(--surface); }
+  .autor-card {
+    max-width:700px; background:var(--card); border:1px solid var(--border);
+    border-radius:20px; padding:2.5rem; display:flex; gap:2rem;
+    align-items:center; flex-wrap:wrap;
+  }
+  .autor-avatar {
+    width:100px; height:100px; border-radius:50%; flex-shrink:0;
+    background:linear-gradient(135deg,#e5b43a,#f5784e);
+    display:flex; align-items:center; justify-content:center;
+    font-family:var(--font-display); font-size:2.5rem; color:#000; border:3px solid var(--accent);
+  }
+  .autor-info h3 { font-family:var(--font-display); font-size:1.8rem; margin-bottom:.3rem; letter-spacing:1px; }
+  .autor-info .titulo { color:var(--accent); font-size:.85rem; font-weight:600; margin-bottom:.8rem; }
+  .autor-info p { color:var(--muted); font-size:.9rem; line-height:1.7; }
+
+  /* FOOTER */
+  footer {
+    border-top:1px solid var(--border); padding:2.5rem 4%;
+    display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:1rem;
+  }
+  footer p { font-size:.82rem; color:var(--muted); }
+  .footer-logo { font-family:var(--font-display); font-size:1.5rem; color:var(--accent); }
+
+  /* Ribbon */
+  .online-badge {
+    display:inline-flex; align-items:center; gap:.4rem;
+    background:rgba(52,211,153,.1); border:1px solid rgba(52,211,153,.3);
+    color:var(--accent3); font-size:.72rem; font-weight:700;
+    padding:.3rem .8rem; border-radius:50px; letter-spacing:1px;
+    text-transform:uppercase; margin-bottom:1rem;
+  }
+  .dot-pulse { width:7px; height:7px; border-radius:50%; background:var(--accent3); animation:pulse 1.5s infinite; }
+  @keyframes pulse { 0%,100%{opacity:1}50%{opacity:.3} }
+
+  @media(max-width:600px){
+    nav ul { display:none; }
+    .autor-card { flex-direction:column; align-items:flex-start; }
+    footer { flex-direction:column; }
+  }
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <div class="logo">MI<span>Te</span></div>
+  <ul>
+    <li><a href="#modulos">Módulos</a></li>
+    <li><a href="#gamificacao">Gamificação</a></li>
+    <li><a href="#materiais">Materiais</a></li>
+    <li><a href="#autor">Autor</a></li>
+  </ul>
+  <a href="inscricao.html" class="btn-inscricao">Inscrever-se Agora</a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-content">
+    <div class="online-badge"><span class="dot-pulse"></span> 100% Online & Automatizada</div>
+    <div class="hero-badge">🏆 Mentoria Premium · Turma 2025</div>
+    <h1>Mentoria da<br><span>Inovação Tecnológica</span><br>em Educação</h1>
+    <p>Domine as ferramentas, metodologias e tendências que estão transformando o cenário educacional. Aprenda no seu ritmo, com trilhas gamificadas e conteúdo de referência.</p>
+    <div class="hero-ctas">
+      <a href="inscricao.html" class="btn-primary">🚀 Garantir Minha Vaga</a>
+      <a href="#modulos" class="btn-ghost">Ver Programa Completo</a>
+    </div>
+    <div class="hero-stats">
+      <div class="stat-item"><div class="num">8</div><div class="lbl">Módulos</div></div>
+      <div class="stat-item"><div class="num">40+</div><div class="lbl">Videoaulas</div></div>
+      <div class="stat-item"><div class="num">100%</div><div class="lbl">Online</div></div>
+      <div class="stat-item"><div class="num">∞</div><div class="lbl">Acesso Vitalício</div></div>
+    </div>
+  </div>
+</section>
+
+<!-- MÓDULOS -->
+<section id="modulos" class="netflix-section">
+  <div class="section-label">📺 Programa Completo</div>
+  <div class="section-title">Módulos da Mentoria</div>
+  <p class="section-sub">Conteúdo estruturado em trilhas progressivas. Avance no seu ritmo, ganhe XP e desbloqueie conquistas a cada módulo concluído.</p>
+  <div class="modules-row" style="margin-top:2rem;">
+    <div class="module-card">
+      <div class="module-thumb m1"><span class="module-num">01</span>🌐</div>
+      <div class="module-info">
+        <h3>Fundamentos da Ed-Tech</h3>
+        <p>Panorama da inovação educacional, histórico e contexto atual.</p>
+        <div class="module-duration">⏱ 4h de conteúdo</div>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-thumb m2"><span class="module-num">02</span>🤖</div>
+      <div class="module-info">
+        <h3>Inteligência Artificial na Educação</h3>
+        <p>IA generativa, chatbots pedagógicos e personalização do aprendizado.</p>
+        <div class="module-duration">⏱ 6h de conteúdo</div>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-thumb m3"><span class="module-num">03</span>🎮</div>
+      <div class="module-info">
+        <h3>Gamificação Educacional</h3>
+        <p>Design de games, mecânicas de engajamento e aprendizagem ativa.</p>
+        <div class="module-duration">⏱ 5h de conteúdo</div>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-thumb m4"><span class="module-num">04</span>📊</div>
+      <div class="module-info">
+        <h3>Learning Analytics</h3>
+        <p>Dados educacionais, dashboards e tomada de decisão baseada em evidências.</p>
+        <div class="module-duration">⏱ 5h de conteúdo</div>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-thumb m5"><span class="module-num">05</span>🥽</div>
+      <div class="module-info">
+        <h3>Realidade Virtual e Aumentada</h3>
+        <p>Imersão e experiências educacionais com VR/AR e Metaverso.</p>
+        <div class="module-duration">⏱ 4h de conteúdo</div>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-thumb m6"><span class="module-num">06</span>📱</div>
+      <div class="module-info">
+        <h3>Mobile Learning e Microlearning</h3>
+        <p>Aprendizagem móvel, pílulas de conteúdo e design instrucional ágil.</p>
+        <div class="module-duration">⏱ 4h de conteúdo</div>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-thumb m7"><span class="module-num">07</span>🏗️</div>
+      <div class="module-info">
+        <h3>Criação de Plataformas EAD</h3>
+        <p>LMS, AVAs, produção de cursos online e gestão de EAD.</p>
+        <div class="module-duration">⏱ 6h de conteúdo</div>
+      </div>
+    </div>
+    <div class="module-card">
+      <div class="module-thumb m8"><span class="module-num">08</span>🚀</div>
+      <div class="module-info">
+        <h3>Futuro da Educação</h3>
+        <p>Tendências emergentes, projeto final e certificação.</p>
+        <div class="module-duration">⏱ 4h de conteúdo</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- GAMIFICAÇÃO -->
+<section id="gamificacao">
+  <div class="section-label">🎮 Sistema de Recompensas</div>
+  <div class="section-title">Aprendizado Gamificado</div>
+  <p class="section-sub">Cada aula assistida, quiz resolvido e desafio concluído vale pontos. Suba de nível, desbloqueie badges e conquiste o leaderboard da turma.</p>
+  <div class="gamif-grid">
+    <div class="gamif-card">
+      <div class="gamif-icon">⚡</div>
+      <h3>Sistema de XP</h3>
+      <p>Ganhe pontos de experiência a cada atividade concluída. Videoaulas, quizzes e projetos valem XP diferente.</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:65%"></div></div>
+    </div>
+    <div class="gamif-card">
+      <div class="gamif-icon">🏅</div>
+      <h3>Badges & Conquistas</h3>
+      <p>Mais de 30 conquistas desbloqueáveis. De "Explorador Digital" ao raro badge "Mestre da Ed-Tech".</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:40%; background:var(--accent2)"></div></div>
+    </div>
+    <div class="gamif-card">
+      <div class="gamif-icon">🏆</div>
+      <h3>Ranking da Turma</h3>
+      <p>Leaderboard semanal com os alunos mais engajados. Competição saudável que acelera o aprendizado.</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:80%; background:var(--accent3)"></div></div>
+    </div>
+    <div class="gamif-card">
+      <div class="gamif-icon">🎯</div>
+      <h3>Desafios Semanais</h3>
+      <p>Missões cronometradas com recompensas exclusivas. Resolva antes do prazo e multiplique seu XP.</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:55%; background:#a855f7"></div></div>
+    </div>
+    <div class="gamif-card">
+      <div class="gamif-icon">📈</div>
+      <h3>Trilha de Progresso</h3>
+      <p>Visualize sua evolução em tempo real. Dashboards personalizados mostram seus pontos fortes e lacunas.</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:70%"></div></div>
+    </div>
+    <div class="gamif-card">
+      <div class="gamif-icon">🎓</div>
+      <h3>Certificado Digital</h3>
+      <p>Certificado verificável com blockchain ao completar 100% da trilha e atingir pontuação mínima.</p>
+      <div class="progress-bar"><div class="progress-fill" style="width:30%; background:var(--accent3)"></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- TRILHA -->
+<section class="trilha">
+  <div class="section-label">🗺️ Jornada do Aluno</div>
+  <div class="section-title">Sua Trilha de Aprendizagem</div>
+  <p class="section-sub">Um caminho estruturado do básico ao avançado. Cada etapa desbloqueia a próxima automaticamente.</p>
+  <div class="trilha-steps">
+    <div class="trilha-step">
+      <div class="step-dot active">1</div>
+      <div class="step-body">
+        <h3>Inscrição & Acesso</h3>
+        <p>Preencha a ficha de inscrição, realize o pagamento via InfinitePay e receba seus dados de acesso em até 24h.</p>
+      </div>
+    </div>
+    <div class="trilha-step">
+      <div class="step-dot">2</div>
+      <div class="step-body">
+        <h3>Onboarding & Diagnóstico</h3>
+        <p>Quiz inicial para mapear seu perfil e recomendar a melhor sequência de módulos para você.</p>
+      </div>
+    </div>
+    <div class="trilha-step">
+      <div class="step-dot">3</div>
+      <div class="step-body">
+        <h3>Módulos & Conteúdo</h3>
+        <p>Assista videoaulas, leia os materiais de apoio, resolva quizzes e complete os projetos práticos.</p>
+      </div>
+    </div>
+    <div class="trilha-step">
+      <div class="step-dot">4</div>
+      <div class="step-body">
+        <h3>Gamificação & Progresso</h3>
+        <p>Acumule XP, desbloqueie conquistas e suba no ranking. Quanto mais engajado, mais rápido você avança.</p>
+      </div>
+    </div>
+    <div class="trilha-step">
+      <div class="step-dot">5</div>
+      <div class="step-body">
+        <h3>Projeto Final & Certificação</h3>
+        <p>Desenvolva seu projeto integrador, receba feedback automatizado pelo sistema e conquiste seu certificado digital.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MATERIAIS -->
+<section id="materiais">
+  <div class="section-label">📚 Materiais Didáticos</div>
+  <div class="section-title">Materiais de Apoio Inclusos</div>
+  <p class="section-sub">Todo o material necessário para você aprofundar o conteúdo e consultar sempre que precisar. Incluso sem custo adicional.</p>
+  <div class="materiais-grid">
+    <div class="material-card">
+      <div class="material-icon ic-manual">📘</div>
+      <div class="material-body">
+        <h3>Manual do Aluno</h3>
+        <p>Guia completo com orientações, metodologia, cronograma, regras de certificação e como aproveitar ao máximo a mentoria.</p>
+        <span class="tag">PDF · 48 páginas</span>
+      </div>
+    </div>
+    <div class="material-card">
+      <div class="material-icon ic-gloss">📖</div>
+      <div class="material-body">
+        <h3>Glossário Ed-Tech</h3>
+        <p>Mais de 150 termos do ecossistema educacional e tecnológico, com definições aprofundadas e exemplos práticos.</p>
+        <span class="tag">PDF · 72 termos</span>
+      </div>
+    </div>
+    <div class="material-card">
+      <div class="material-icon ic-video">🎬</div>
+      <div class="material-body">
+        <h3>Videoaulas HD</h3>
+        <p>Mais de 40 videoaulas em alta resolução, com legendas, velocidade ajustável e download para assistir offline.</p>
+        <span class="tag">40+ Vídeos · HD 1080p</span>
+      </div>
+    </div>
+    <div class="material-card">
+      <div class="material-icon ic-quiz">🧠</div>
+      <div class="material-body">
+        <h3>Quizzes & Avaliações</h3>
+        <p>Sistema automatizado de avaliação com feedback instantâneo, gabarito comentado e tentativas ilimitadas.</p>
+        <span class="tag">8 Avaliações · Auto-corrigidas</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- AUTOR -->
+<section id="autor" class="autor-section">
+  <div class="section-label">👨‍🏫 Sobre o Criador</div>
+  <div class="section-title">O Idealizador da Mentoria</div>
+  <div class="autor-card" style="margin-top:2rem;">
+    <div class="autor-avatar">LC</div>
+    <div class="autor-info">
+      <h3>Luiz de Castro</h3>
+      <div class="titulo">Mestre em Gestão e Administração de Empresas</div>
+      <p>Especialista em inovação educacional e transformação digital nas organizações. Com vasta experiência em gestão empresarial e tecnologias aplicadas à educação, desenvolveu a MITe como uma plataforma automatizada de excelência, permitindo que profissionais de todo o Brasil acessem conteúdo de referência no seu próprio ritmo, sem depender de horários fixos ou tutores humanos.</p>
+    </div>
+  </div>
+</section>
+
+<!-- CTA FINAL -->
+<section style="text-align:center; background:linear-gradient(135deg,#0a0a0f 0%,#1a1030 50%,#0a0a0f 100%); padding:5rem 4%;">
+  <div class="section-label">🚀 Próxima Turma</div>
+  <h2 class="section-title">Pronto para Transformar<br>sua Carreira Educacional?</h2>
+  <p style="color:var(--muted);max-width:500px;margin:1rem auto 2.5rem;font-size:1.05rem;line-height:1.7;">Vagas limitadas. Inscreva-se agora, realize o pagamento seguro e comece hoje mesmo.</p>
+  <a href="inscricao.html" class="btn-primary" style="font-size:1.1rem; padding:1rem 2.8rem;">🎯 Garantir Minha Vaga Agora</a>
+  <p style="margin-top:1.5rem; font-size:.8rem; color:var(--muted);">Pagamento seguro via InfinitePay · Acesso imediato após confirmação</p>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div>
+    <div class="footer-logo">MITe</div>
+    <p>Mentoria da Inovação Tecnológica em Educação</p>
+    <p style="margin-top:.3rem;">© 2025 Luiz de Castro · Administrado por <a href="https://www.lojasdecastro.com.br" target="_blank" style="color:var(--accent);text-decoration:none;">lojasdecastro.com.br</a></p>
+  </div>
+  <div style="text-align:right;">
+    <p>Hospedado no GitHub</p>
+    <p>Banco de dados: <code style="color:var(--accent);font-size:.8rem;">dados_alunos_mite</code></p>
+  </div>
+</footer>
+
+</body>
+</html>

@@ -1,0 +1,359 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Manual do Aluno & Glossário – MITe</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Lora:ital,wght@0,400;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --bg:#0a0a0f; --surface:#111118; --card:#16161f; --border:rgba(255,255,255,.09);
+    --accent:#e5b43a; --accent2:#4f8ef7; --accent3:#34d399;
+    --text:#f0f0f5; --muted:#8888aa;
+    --font-display:'Bebas Neue',sans-serif;
+    --font-body:'Plus Jakarta Sans',sans-serif;
+    --font-serif:'Lora',serif;
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { background:var(--bg); color:var(--text); font-family:var(--font-body); }
+
+  header {
+    background:rgba(10,10,15,.98); border-bottom:1px solid var(--border);
+    padding:1rem 4%; display:flex; align-items:center; justify-content:space-between; flex-wrap:wrap; gap:1rem;
+  }
+  .logo { font-family:var(--font-display); font-size:1.8rem; color:var(--accent); text-decoration:none; }
+  .logo span { color:var(--text); }
+
+  /* TABS */
+  .tabs-bar { background:var(--surface); border-bottom:1px solid var(--border); padding:0 4%; display:flex; gap:0; }
+  .tab-btn {
+    padding:1rem 1.5rem; background:none; border:none; color:var(--muted);
+    font-family:var(--font-body); font-size:.88rem; font-weight:600; cursor:pointer;
+    border-bottom:3px solid transparent; transition:.2s;
+  }
+  .tab-btn.active { color:var(--accent); border-bottom-color:var(--accent); }
+  .tab-btn:hover:not(.active) { color:var(--text); }
+
+  .tab-content { display:none; }
+  .tab-content.active { display:block; }
+
+  .page { max-width:840px; margin:0 auto; padding:3rem 4% 5rem; }
+
+  /* MANUAL */
+  .doc-header {
+    background:linear-gradient(135deg,var(--card),rgba(229,180,58,.06));
+    border:1px solid var(--border); border-radius:16px; padding:2.5rem; margin-bottom:2.5rem;
+    display:flex; gap:2rem; align-items:center; flex-wrap:wrap;
+  }
+  .doc-icon { font-size:4rem; }
+  .doc-header h1 { font-family:var(--font-display); font-size:2.5rem; letter-spacing:1px; }
+  .doc-header .meta { color:var(--muted); font-size:.85rem; margin-top:.3rem; }
+  .doc-header .meta span { color:var(--accent); font-weight:600; }
+
+  .chapter {
+    background:var(--card); border:1px solid var(--border); border-radius:14px;
+    padding:1.8rem; margin-bottom:1.5rem;
+  }
+  .chapter-title {
+    display:flex; align-items:center; gap:.8rem;
+    font-family:var(--font-display); font-size:1.5rem; letter-spacing:1px; margin-bottom:1rem;
+    padding-bottom:.8rem; border-bottom:1px solid var(--border);
+  }
+  .chapter-num {
+    width:36px; height:36px; border-radius:8px; background:rgba(229,180,58,.15);
+    color:var(--accent); display:flex; align-items:center; justify-content:center;
+    font-size:1rem; font-weight:800; flex-shrink:0;
+  }
+  .chapter p { color:var(--muted); font-size:.92rem; line-height:1.8; margin-bottom:.8rem; }
+  .chapter ul { padding-left:1.2rem; }
+  .chapter ul li { color:var(--muted); font-size:.9rem; line-height:1.9; }
+  .chapter ul li::marker { color:var(--accent); }
+  .highlight-box {
+    background:rgba(79,142,247,.07); border-left:3px solid var(--accent2);
+    border-radius:0 8px 8px 0; padding:1rem 1.2rem; margin:1rem 0;
+    font-size:.9rem; line-height:1.7; color:var(--text);
+  }
+  .warning-box {
+    background:rgba(229,180,58,.07); border-left:3px solid var(--accent);
+    border-radius:0 8px 8px 0; padding:1rem 1.2rem; margin:1rem 0;
+    font-size:.9rem; line-height:1.7; color:var(--text);
+  }
+  .info-grid { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:1rem; margin-top:1rem; }
+  .info-item {
+    background:rgba(255,255,255,.03); border:1px solid var(--border);
+    border-radius:10px; padding:1rem; text-align:center;
+  }
+  .info-item .num { font-family:var(--font-display); font-size:2rem; color:var(--accent3); }
+  .info-item .lbl { font-size:.75rem; color:var(--muted); text-transform:uppercase; letter-spacing:.8px; }
+
+  /* GLOSSÁRIO */
+  .gloss-search-wrap { position:relative; margin-bottom:2rem; }
+  .gloss-search {
+    width:100%; background:var(--card); border:1px solid var(--border);
+    border-radius:10px; color:var(--text); font-family:var(--font-body);
+    font-size:1rem; padding:.85rem 1.2rem .85rem 3rem; outline:none; transition:.2s;
+  }
+  .gloss-search:focus { border-color:var(--accent2); }
+  .gloss-search-icon { position:absolute; left:1rem; top:50%; transform:translateY(-50%); color:var(--muted); font-size:1rem; }
+  .alpha-nav { display:flex; flex-wrap:wrap; gap:.4rem; margin-bottom:1.5rem; }
+  .alpha-btn {
+    width:32px; height:32px; background:var(--card); border:1px solid var(--border);
+    border-radius:6px; color:var(--muted); font-size:.8rem; font-weight:700;
+    cursor:pointer; transition:.15s; display:flex; align-items:center; justify-content:center;
+  }
+  .alpha-btn:hover { border-color:var(--accent); color:var(--accent); }
+  .gloss-group { margin-bottom:2rem; }
+  .gloss-letter {
+    font-family:var(--font-display); font-size:2.5rem; color:var(--accent);
+    border-bottom:1px solid var(--border); padding-bottom:.3rem; margin-bottom:1rem;
+    letter-spacing:2px;
+  }
+  .gloss-term {
+    background:var(--card); border:1px solid var(--border); border-radius:10px;
+    padding:1rem 1.2rem; margin-bottom:.7rem; transition:.2s;
+  }
+  .gloss-term:hover { border-color:rgba(229,180,58,.3); }
+  .gloss-term-name { font-weight:700; font-size:.95rem; color:var(--accent); margin-bottom:.3rem; }
+  .gloss-term-cat {
+    display:inline-block; background:rgba(79,142,247,.12); color:var(--accent2);
+    font-size:.65rem; font-weight:700; letter-spacing:.8px; text-transform:uppercase;
+    padding:.15rem .5rem; border-radius:4px; margin-bottom:.4rem;
+  }
+  .gloss-term-def { color:var(--muted); font-size:.87rem; line-height:1.7; }
+  .gloss-term.hidden { display:none; }
+  .no-results { text-align:center; color:var(--muted); padding:2rem; }
+</style>
+</head>
+<body>
+
+<header>
+  <a href="index.html" class="logo">MI<span>Te</span></a>
+  <span style="font-size:.8rem;color:var(--muted);">Materiais Didáticos de Apoio</span>
+</header>
+
+<div class="tabs-bar">
+  <button class="tab-btn active" onclick="switchTab('manual',this)">📘 Manual do Aluno</button>
+  <button class="tab-btn" onclick="switchTab('glossario',this)">📖 Glossário Ed-Tech</button>
+</div>
+
+<!-- MANUAL DO ALUNO -->
+<div class="tab-content active" id="tab-manual">
+<div class="page">
+  <div class="doc-header">
+    <div class="doc-icon">📘</div>
+    <div>
+      <h1>Manual do Aluno</h1>
+      <div class="meta">Mentoria da Inovação Tecnológica em Educação · <span>MITe 2025</span></div>
+      <div class="meta" style="margin-top:.3rem;">Autor: <span>Luiz de Castro</span> — Mestre em Gestão e Adm. de Empresas</div>
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-title"><div class="chapter-num">1</div> Boas-Vindas</div>
+    <p>Seja muito bem-vindo(a) à <strong>Mentoria da Inovação Tecnológica em Educação (MITe)</strong>! Você acaba de dar um passo decisivo para transformar sua atuação profissional e dominar as ferramentas que estão redefinindo o cenário educacional no Brasil e no mundo.</p>
+    <p>Esta mentoria foi cuidadosamente desenvolvida por <strong>Luiz de Castro</strong>, Mestre em Gestão e Administração de Empresas, com foco em oferecer uma experiência de aprendizado de excelência — 100% online, automatizada e no seu próprio ritmo.</p>
+    <div class="highlight-box">
+      💡 <strong>Diferencial MITe:</strong> Você não depende de nenhum mentor humano. Todo o conteúdo, feedback e avaliações são gerados automaticamente, garantindo disponibilidade 24h por dia, 7 dias por semana.
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-title"><div class="chapter-num">2</div> Estrutura da Mentoria</div>
+    <p>A MITe é dividida em <strong>8 módulos temáticos</strong>, cada um com videoaulas, leituras, quizzes e projetos práticos. O tempo médio de conclusão é de 6 a 8 semanas para quem dedica 5h por semana.</p>
+    <div class="info-grid">
+      <div class="info-item"><div class="num">8</div><div class="lbl">Módulos</div></div>
+      <div class="info-item"><div class="num">40+</div><div class="lbl">Videoaulas</div></div>
+      <div class="info-item"><div class="num">8</div><div class="lbl">Projetos Práticos</div></div>
+      <div class="info-item"><div class="num">∞</div><div class="lbl">Acesso Vitalício</div></div>
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-title"><div class="chapter-num">3</div> Como Acessar o Conteúdo</div>
+    <p>Após a confirmação do pagamento via <strong>InfinitePay</strong>, você receberá em até 24h um e-mail com suas credenciais de acesso. O login é feito diretamente pela plataforma hospedada no GitHub e administrada pelo site <strong>lojasdecastro.com.br</strong>.</p>
+    <ul>
+      <li>Acesse a plataforma pelo link enviado no e-mail</li>
+      <li>Faça login com seu e-mail e senha cadastrados</li>
+      <li>Navegue pelos módulos no painel do aluno</li>
+      <li>Assista às videoaulas, baixe os materiais e resolva os quizzes</li>
+      <li>Acompanhe seu progresso e XP em tempo real</li>
+    </ul>
+    <div class="warning-box">
+      ⚠️ <strong>Atenção:</strong> O acesso é pessoal e intransferível. Compartilhar credenciais viola os Termos de Uso e pode resultar no cancelamento do acesso sem direito a reembolso.
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-title"><div class="chapter-num">4</div> Sistema de Gamificação</div>
+    <p>A MITe utiliza um sistema de gamificação completo para manter seu engajamento e tornar o aprendizado mais motivador.</p>
+    <ul>
+      <li><strong>XP (Pontos de Experiência):</strong> Ganhe XP a cada aula assistida, quiz concluído e projeto entregue</li>
+      <li><strong>Níveis:</strong> Iniciante → Explorador → Inovador → Especialista → Mestre Ed-Tech</li>
+      <li><strong>Badges:</strong> Conquistas especiais desbloqueadas por marcos de desempenho</li>
+      <li><strong>Ranking:</strong> Leaderboard semanal com os alunos mais engajados</li>
+      <li><strong>Desafios Bônus:</strong> Missões extras com recompensas exclusivas</li>
+    </ul>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-title"><div class="chapter-num">5</div> Avaliações e Certificação</div>
+    <p>Para obter o <strong>Certificado Digital MITe</strong>, você precisará:</p>
+    <ul>
+      <li>Concluir 100% das videoaulas de todos os 8 módulos</li>
+      <li>Atingir nota mínima de 70% nos quizzes de cada módulo</li>
+      <li>Entregar e obter aprovação no Projeto Final</li>
+      <li>Acumular pelo menos 500 XP no sistema de gamificação</li>
+    </ul>
+    <div class="highlight-box">
+      🏆 O certificado é emitido digitalmente com validação verificável. Você pode compartilhá-lo no LinkedIn e em outras plataformas profissionais.
+    </div>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-title"><div class="chapter-num">6</div> Regras e Política de Uso</div>
+    <ul>
+      <li>O conteúdo da mentoria é protegido por direitos autorais de Luiz de Castro</li>
+      <li>É proibida a reprodução, redistribuição ou comercialização do material</li>
+      <li>O prazo para reembolso é de 7 dias corridos após a compra (Lei do Consumidor)</li>
+      <li>Dúvidas sobre o conteúdo devem ser enviadas pelo suporte automatizado da plataforma</li>
+      <li>A administração da mentoria é feita exclusivamente via lojasdecastro.com.br</li>
+    </ul>
+  </div>
+
+  <div class="chapter">
+    <div class="chapter-title"><div class="chapter-num">7</div> Suporte Técnico</div>
+    <p>O suporte é 100% automatizado e disponível 24/7:</p>
+    <ul>
+      <li><strong>Chat Bot:</strong> Disponível na plataforma para dúvidas frequentes</li>
+      <li><strong>FAQ:</strong> Base de conhecimento com centenas de respostas</li>
+      <li><strong>E-mail:</strong> suporte@lojasdecastro.com.br — resposta em até 48h úteis</li>
+      <li><strong>WhatsApp Bot:</strong> Atendimento automatizado pelo número cadastrado</li>
+    </ul>
+  </div>
+</div>
+</div>
+
+<!-- GLOSSÁRIO -->
+<div class="tab-content" id="tab-glossario">
+<div class="page">
+  <div class="doc-header">
+    <div class="doc-icon">📖</div>
+    <div>
+      <h1>Glossário Ed-Tech</h1>
+      <div class="meta">150+ termos do universo da Educação e Tecnologia</div>
+      <div class="meta" style="margin-top:.3rem;">Curadoria: <span>Luiz de Castro</span> — MITe 2025</div>
+    </div>
+  </div>
+
+  <div class="gloss-search-wrap">
+    <span class="gloss-search-icon">🔍</span>
+    <input type="text" class="gloss-search" id="glossSearch" placeholder="Buscar termo..." oninput="filterGloss()">
+  </div>
+
+  <div class="alpha-nav" id="alphNav"></div>
+
+  <div id="glossContent"></div>
+  <div class="no-results" id="noResults" style="display:none;">Nenhum termo encontrado para sua busca.</div>
+</div>
+</div>
+
+<script>
+// TABS
+function switchTab(id, btn){
+  document.querySelectorAll('.tab-content').forEach(t=>t.classList.remove('active'));
+  document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  btn.classList.add('active');
+}
+
+// GLOSSÁRIO
+const terms = [
+  {l:'A', t:'ADDIE', cat:'Design Instrucional', d:'Modelo de design instrucional composto por 5 fases: Analysis, Design, Development, Implementation e Evaluation. Amplamente utilizado na criação de cursos online.'},
+  {l:'A', t:'Aprendizagem Adaptativa', cat:'Tecnologia', d:'Sistemas que ajustam automaticamente o conteúdo e o ritmo com base no desempenho individual do aluno, usando algoritmos de IA.'},
+  {l:'A', t:'AVA (Ambiente Virtual de Aprendizagem)', cat:'Plataformas', d:'Espaço digital onde ocorre o processo educativo online, com recursos como fóruns, vídeos, avaliações e interações entre alunos e conteúdos.'},
+  {l:'A', t:'AR (Realidade Aumentada)', cat:'Imersão', d:'Tecnologia que sobrepõe elementos digitais (imagens, textos, 3D) ao ambiente físico, vista através de dispositivos como smartphones ou óculos.'},
+  {l:'B', t:'Blended Learning', cat:'Metodologia', d:'Modalidade de ensino híbrida que combina aulas presenciais com atividades online, aproveitando os benefícios de ambos os formatos.'},
+  {l:'B', t:'Big Data Educacional', cat:'Dados', d:'Conjunto massivo de dados gerados por alunos e instituições, utilizados para identificar padrões e melhorar processos educacionais.'},
+  {l:'C', t:'Chatbot Pedagógico', cat:'IA', d:'Assistente virtual com inteligência artificial desenvolvido para responder dúvidas, fornecer feedback e guiar alunos em suas jornadas de aprendizagem.'},
+  {l:'C', t:'CBT (Computer-Based Training)', cat:'EAD', d:'Treinamento realizado em computadores, sem conexão obrigatória à internet, utilizando softwares educacionais instalados localmente.'},
+  {l:'C', t:'CLMS (Collaborative LMS)', cat:'Plataformas', d:'Sistema de gerenciamento de aprendizagem com foco em colaboração, permitindo co-criação de conteúdo e aprendizagem entre pares.'},
+  {l:'C', t:'Competência Digital', cat:'Habilidades', d:'Conjunto de habilidades necessárias para usar com eficiência e criticidade as tecnologias digitais em contextos profissionais e pessoais.'},
+  {l:'D', t:'Design Instrucional', cat:'Metodologia', d:'Processo sistemático de análise, planejamento, desenvolvimento, implementação e avaliação de soluções educacionais eficazes.'},
+  {l:'D', t:'Dashboard Educacional', cat:'Dados', d:'Painel visual que consolida métricas e indicadores de desempenho de alunos e turmas, facilitando a tomada de decisão pedagógica.'},
+  {l:'D', t:'Deep Learning (Educação)', cat:'IA', d:'Abordagem pedagógica que promove compreensão profunda — não memorização — dos conteúdos, incentivando análise crítica e aplicação prática.'},
+  {l:'E', t:'EAD (Educação a Distância)', cat:'Modalidade', d:'Modalidade educacional na qual professores e alunos estão separados geograficamente, usando tecnologias de comunicação para o processo de ensino-aprendizagem.'},
+  {l:'E', t:'Ed-Tech', cat:'Mercado', d:'Abreviação de Educational Technology. Setor que une educação e tecnologia, abrangendo startups, produtos e serviços digitais voltados ao aprendizado.'},
+  {l:'E', t:'Engajamento Digital', cat:'Pedagogia', d:'Nível de participação ativa e interação dos alunos com plataformas e conteúdos digitais educacionais, medido por métricas como tempo de sessão e conclusão.'},
+  {l:'F', t:'Feedback Automatizado', cat:'IA', d:'Retorno sobre o desempenho do aluno gerado automaticamente por sistemas de IA, sem necessidade de intervenção humana direta do professor.'},
+  {l:'F', t:'Flipped Classroom', cat:'Metodologia', d:'Sala de aula invertida: o aluno estuda o conteúdo em casa (por vídeos ou leituras) e o tempo em sala é utilizado para práticas, discussões e resolução de problemas.'},
+  {l:'G', t:'Gamificação', cat:'Engajamento', d:'Aplicação de mecânicas de jogos (pontos, rankings, badges, desafios) em contextos não-gamers, como educação, para aumentar motivação e engajamento.'},
+  {l:'G', t:'GBL (Game-Based Learning)', cat:'Metodologia', d:'Aprendizagem baseada em jogos. Uso de jogos completos (digitais ou analógicos) como veículos principais de ensino e desenvolvimento de competências.'},
+  {l:'H', t:'H5P', cat:'Ferramentas', d:'Framework open-source que permite criar conteúdo interativo para a web, como vídeos interativos, quizzes, apresentações e flashcards, integrável a LMS.'},
+  {l:'I', t:'IA Generativa na Educação', cat:'IA', d:'Uso de modelos de linguagem como GPT para criar conteúdo educacional personalizado, gerar exercícios, fornecer explicações e apoiar professores.'},
+  {l:'I', t:'Interoperabilidade', cat:'Tecnologia', d:'Capacidade de diferentes sistemas e plataformas educacionais trocarem dados e funcionarem de forma integrada, geralmente via padrões como SCORM ou xAPI.'},
+  {l:'L', t:'Learning Analytics', cat:'Dados', d:'Área que estuda a medição, coleta, análise e reporte de dados sobre alunos e seus contextos, com o objetivo de compreender e otimizar o aprendizado.'},
+  {l:'L', t:'LMS (Learning Management System)', cat:'Plataformas', d:'Sistema de Gerenciamento de Aprendizagem. Plataforma que organiza, entrega e rastreia cursos e treinamentos online. Exemplos: Moodle, Canvas, Blackboard.'},
+  {l:'L', t:'Lifelong Learning', cat:'Pedagogia', d:'Aprendizagem ao longo da vida. Conceito que defende a continuidade do desenvolvimento pessoal e profissional em todas as fases da vida.'},
+  {l:'M', t:'Metaverso Educacional', cat:'Imersão', d:'Ambientes virtuais imersivos e persistentes onde alunos podem assistir aulas, interagir com colegas e realizar atividades práticas em simulações 3D.'},
+  {l:'M', t:'Microlearning', cat:'Metodologia', d:'Estratégia de entrega de conteúdo em pequenas unidades (2 a 10 minutos), focadas em um único objetivo de aprendizagem. Ideal para mobile e ritmos acelerados.'},
+  {l:'M', t:'Mobile Learning (M-Learning)', cat:'Tecnologia', d:'Modalidade de aprendizagem que utiliza dispositivos móveis (smartphones e tablets) como principal meio de acesso ao conteúdo educacional.'},
+  {l:'N', t:'Neuroeducação', cat:'Ciência', d:'Campo que aplica conhecimentos de neurociência ao processo educativo, buscando entender como o cérebro aprende e como criar ambientes mais eficazes.'},
+  {l:'O', t:'OER (Open Educational Resources)', cat:'Recursos', d:'Recursos Educacionais Abertos: materiais de ensino e aprendizagem disponíveis gratuitamente para qualquer pessoa usar, adaptar e redistribuir.'},
+  {l:'P', t:'Personalização do Aprendizado', cat:'IA', d:'Processo de adaptar conteúdos, ritmo e avaliações às necessidades individuais de cada aluno, utilizando dados e algoritmos de IA para guiar as recomendações.'},
+  {l:'P', t:'PBL (Project-Based Learning)', cat:'Metodologia', d:'Aprendizagem Baseada em Projetos. Os alunos aprendem investigando e respondendo a problemas do mundo real por meio de projetos complexos e colaborativos.'},
+  {l:'P', t:'Podcast Educacional', cat:'Formato', d:'Áudio em série produzido com fins educativos, permitindo aprendizagem assíncrona em contextos de mobilidade, como deslocamentos e exercícios.'},
+  {l:'S', t:'SCORM', cat:'Padrão Técnico', d:'Sharable Content Object Reference Model. Padrão técnico que define como conteúdos de e-learning são empacotados e comunicam dados com um LMS.'},
+  {l:'S', t:'Social Learning', cat:'Pedagogia', d:'Aprendizagem social. Teoria de que aprendemos observando e interagindo com outras pessoas, aplicada em fóruns, grupos e comunidades de aprendizagem online.'},
+  {l:'T', t:'Trilha de Aprendizagem', cat:'Estrutura', d:'Sequência estruturada e progressiva de conteúdos que guia o aluno do nível básico ao avançado em um determinado tema ou habilidade.'},
+  {l:'U', t:'UX em Educação', cat:'Design', d:'Aplicação dos princípios de User Experience no design de plataformas e materiais educacionais, focando na usabilidade e satisfação do aluno.'},
+  {l:'V', t:'Videoaula', cat:'Formato', d:'Aula gravada em vídeo e disponibilizada em plataformas digitais, permitindo aprendizagem assíncrona com controle de ritmo pelo aluno.'},
+  {l:'V', t:'VR (Realidade Virtual)', cat:'Imersão', d:'Tecnologia que cria ambientes totalmente digitais e imersivos, acessados via headsets, permitindo simulações educacionais de alta fidelidade.'},
+  {l:'X', t:'xAPI (Experience API)', cat:'Padrão Técnico', d:'Successor do SCORM. Padrão moderno que permite rastrear experiências de aprendizagem em qualquer contexto (mobile, VR, simulações) e armazená-las num LRS.'},
+  {l:'X', t:'XP (Pontos de Experiência)', cat:'Gamificação', d:'Moeda de recompensa nos sistemas gamificados. Alunos acumulam XP ao completar atividades, desbloqueando novos níveis e conquistas na plataforma.'},
+];
+
+// Agrupar por letra
+function buildGloss(filtered){
+  const letters = [...new Set(filtered.map(t=>t.l))].sort();
+  let html = '';
+  letters.forEach(l=>{
+    const group = filtered.filter(t=>t.l===l);
+    if(group.length===0) return;
+    html += `<div class="gloss-group" id="gloss-${l}">
+      <div class="gloss-letter">${l}</div>
+      ${group.map(t=>`<div class="gloss-term">
+        <div class="gloss-term-name">${t.t}</div>
+        <span class="gloss-term-cat">${t.cat}</span>
+        <div class="gloss-term-def">${t.d}</div>
+      </div>`).join('')}
+    </div>`;
+  });
+  return html;
+}
+
+function buildAlpha(){
+  const letters = [...new Set(terms.map(t=>t.l))].sort();
+  const nav = document.getElementById('alphNav');
+  nav.innerHTML = letters.map(l=>`<button class="alpha-btn" onclick="scrollToLetter('${l}')">${l}</button>`).join('');
+}
+
+function scrollToLetter(l){
+  const el = document.getElementById('gloss-'+l);
+  if(el) el.scrollIntoView({behavior:'smooth', block:'start'});
+}
+
+function filterGloss(){
+  const q = document.getElementById('glossSearch').value.toLowerCase().trim();
+  const filtered = q ? terms.filter(t=>t.t.toLowerCase().includes(q)||t.d.toLowerCase().includes(q)||t.cat.toLowerCase().includes(q)) : terms;
+  const content = document.getElementById('glossContent');
+  const noRes = document.getElementById('noResults');
+  if(filtered.length===0){ content.innerHTML=''; noRes.style.display='block'; }
+  else { content.innerHTML = buildGloss(filtered); noRes.style.display='none'; }
+}
+
+// Init
+buildAlpha();
+document.getElementById('glossContent').innerHTML = buildGloss(terms);
+</script>
+</body>
+</html>
