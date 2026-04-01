@@ -433,11 +433,11 @@
     });
 
     const LINKS = {
-  basico:   'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial',
-  premium:  'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial'
-};
-const planoEscolhido = document.querySelector('input[name=plano]:checked').value;
-document.getElementById('btnCheckout').href = LINKS[planoEscolhido];
+      basico:   'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial',
+      premium:  'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial'  
+    };
+    const planoEscolhido = document.querySelector('input[name=plano]:checked').value;
+      document.getElementById('btnCheckout').href = LINKS[planoEscolhido];
     
     document.getElementById('modalSucesso').classList.add('show');
   });
