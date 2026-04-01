@@ -74,24 +74,5 @@
     "newsletter": true,
     "status": "pendente_pagamento",
     "criadoEm": "2026-04-01T12:10:46.848Z"
-  },
-  {
-    "id": "ALU-1775045569752",
-    "codigo": "MITE-20260005",
-    "nome": "Maria",
-    "cpf": "129.374.793-93",
-    "email": "maria@gmail.com",
-    "telefone": "(98) 98880-4671",
-    "nascimento": "1950-05-02",
-    "genero": "Feminino",
-    "cidade": "São Luís",
-    "estado": "MA",
-    "profissao": "Gestor(a) Educacional / Diretor(a)",
-    "experiencia": "Básico — uso algumas ferramentas simples",
-    "expectativa": "Info....",
-    "plano": "premium",
-    "newsletter": true,
-    "status": "pendente_pagamento",
-    "criadoEm": "2026-04-01T12:12:49.752Z"
   }
 ]
