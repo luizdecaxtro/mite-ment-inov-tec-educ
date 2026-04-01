@@ -293,6 +293,24 @@
   </div>
 </div>
 
+<!-- LOADING OVERLAY -->
+<div id="loadingOverlay" style="display:none;position:fixed;inset:0;background:rgba(10,10,15,.88);
+  z-index:9998;align-items:center;justify-content:center;flex-direction:column;gap:16px;">
+  <div style="width:44px;height:44px;border:3px solid rgba(229,180,58,.2);border-top-color:var(--accent);
+    border-radius:50%;animation:lspin .8s linear infinite"></div>
+  <p id="loadingMsg" style="color:var(--accent);font-size:.88rem;letter-spacing:.05em"></p>
+</div>
+<style>@keyframes lspin{to{transform:rotate(360deg)}}</style>
+
+<!-- TOAST -->
+<div id="adminToast" style="position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+  background:var(--card);color:var(--text);padding:13px 24px;border-radius:10px;font-size:.87rem;
+  border:1px solid var(--border);border-left:4px solid var(--accent);
+  box-shadow:0 8px 28px rgba(0,0,0,.4);opacity:0;transition:all .3s;z-index:9999;
+  pointer-events:none;white-space:nowrap;">
+</div>
+<style>#adminToast.show{opacity:1;transform:translateX(-50%) translateY(0)}</style>
+
 <!-- MODAL CONFIRMAR EXCLUSÃO -->
 <div class="modal-overlay" id="modalDel">
   <div class="confirm-box">
@@ -306,99 +324,179 @@
 </div>
 
 <script>
-// ---- AUTH ----
-const ADMIN_USER = 'admin_mite';
-const ADMIN_PASS = 'MITe@2025';
+'use strict';
 
-function doLogin(){
-  const u = document.getElementById('adminUser').value;
-  const p = document.getElementById('adminPass').value;
-  if(u === ADMIN_USER && p === ADMIN_PASS){
+// ── CONFIGURAÇÃO ─────────────────────────────────────────────────────────────
+const CONFIG = {
+  repo: 'luizdecaxtro/mite-ment-inov-tec-educ',
+  file: 'dados_alunos_mite.json'
+};
+function getToken(){ return localStorage.getItem('_mtoken_mite') || ''; }
+
+// ── Estado global ─────────────────────────────────────────────────────────────
+let fileSha  = null;
+let dbCache  = [];
+let deleteTargetId = null;
+
+// ── Helpers GitHub API ────────────────────────────────────────────────────────
+function ghHeaders(){
+  return {
+    'Authorization': 'Bearer ' + getToken(),
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
+
+async function lerBanco(){
+  const res = await fetch(
+    `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.file}`,
+    { headers: ghHeaders() }
+  );
+  if(!res.ok) throw new Error('HTTP ' + res.status + ' — verifique o token.');
+  const data = await res.json();
+  fileSha = data.sha;
+  const decoded = decodeURIComponent(
+    atob(data.content.replace(/\n/g,''))
+      .split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2,'0')).join('')
+  );
+  return JSON.parse(decoded);
+}
+
+async function gravarBanco(alunos, msg){
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(alunos, null, 2))));
+  const res = await fetch(
+    `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.file}`,
+    {
+      method: 'PUT', headers: ghHeaders(),
+      body: JSON.stringify({ message: msg, content, ...(fileSha ? { sha: fileSha } : {}) })
+    }
+  );
+  if(!res.ok){ const e = await res.json(); throw new Error(e.message || 'HTTP ' + res.status); }
+  const result = await res.json();
+  fileSha = result.content.sha;
+}
+
+// ── Loading / Toast ───────────────────────────────────────────────────────────
+function showLoading(msg){
+  document.getElementById('loadingMsg').textContent = msg || 'Aguarde…';
+  document.getElementById('loadingOverlay').style.display = 'flex';
+}
+function hideLoading(){ document.getElementById('loadingOverlay').style.display = 'none'; }
+
+function toast(msg, tipo){
+  const el = document.getElementById('adminToast');
+  el.textContent = msg;
+  el.style.borderLeftColor = tipo === 'error' ? 'var(--danger)' : tipo === 'success' ? 'var(--accent3)' : 'var(--accent)';
+  el.classList.add('show');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => el.classList.remove('show'), 4000);
+}
+
+// ── LOGIN — usa o mesmo token do formulário ───────────────────────────────────
+async function doLogin(){
+  const u = document.getElementById('adminUser').value.trim();
+  const p = document.getElementById('adminPass').value.trim();
+
+  // Senha local para proteger a tela (simples, pode alterar)
+  const ADMIN_USER = 'admin_mite';
+  const ADMIN_PASS = 'MITe@2025';
+
+  if(u !== ADMIN_USER || p !== ADMIN_PASS){
+    document.getElementById('loginErr').textContent = 'Usuário ou senha incorretos.';
+    document.getElementById('loginErr').style.display = 'block';
+    return;
+  }
+
+  if(!getToken()){
+    document.getElementById('loginErr').textContent = 'Token GitHub não configurado. Acesse admin.html#config primeiro.';
+    document.getElementById('loginErr').style.display = 'block';
+    return;
+  }
+
+  document.getElementById('loginErr').style.display = 'none';
+  showLoading('Conectando ao banco de dados…');
+
+  try {
+    dbCache = await lerBanco();
+    hideLoading();
     document.getElementById('loginScreen').style.display = 'none';
     document.getElementById('adminLayout').classList.add('show');
-    renderTable(); updateStats();
-  } else {
+    renderTable();
+  } catch(e){
+    hideLoading();
+    document.getElementById('loginErr').textContent = 'Erro ao acessar o banco: ' + e.message;
     document.getElementById('loginErr').style.display = 'block';
   }
 }
 
 function doLogout(){
+  dbCache = []; fileSha = null;
   document.getElementById('loginScreen').style.display = 'flex';
   document.getElementById('adminLayout').classList.remove('show');
-  document.getElementById('adminUser').value='';
-  document.getElementById('adminPass').value='';
+  document.getElementById('adminUser').value = '';
+  document.getElementById('adminPass').value = '';
 }
 
 document.addEventListener('keydown', e => {
-  if(e.key==='Enter' && document.getElementById('loginScreen').style.display !== 'none') doLogin();
+  if(e.key === 'Enter'){
+    const ls = document.getElementById('loginScreen');
+    if(ls && ls.style.display !== 'none') doLogin();
+  }
 });
 
-// ---- DB (localStorage simula dados_alunos_mite) ----
-function getDB(){ return JSON.parse(localStorage.getItem('dados_alunos_mite')||'[]'); }
-function setDB(d){ localStorage.setItem('dados_alunos_mite', JSON.stringify(d)); }
-
-// Dados demo
-(function seed(){
-  const db = getDB();
-  if(db.length === 0){
-    const demo = [
-      {id:'ALU-001',nome:'Maria Fernanda Souza',cpf:'123.456.789-00',email:'maria@escola.edu.br',telefone:'(98) 98765-4321',cidade:'São Luís',estado:'MA',profissao:'Professora da Educação Básica',plano:'premium',status:'ativo',data_inscricao:'2025-01-10T10:00:00Z'},
-      {id:'ALU-002',nome:'João Pedro Lima',cpf:'987.654.321-00',email:'joao@edtech.com',telefone:'(11) 91234-5678',cidade:'São Paulo',estado:'SP',profissao:'Designer Instrucional',plano:'premium',status:'ativo',data_inscricao:'2025-01-12T14:00:00Z'},
-      {id:'ALU-003',nome:'Ana Clara Ribeiro',cpf:'456.789.123-00',email:'ana@ead.com.br',telefone:'(21) 99876-5432',cidade:'Rio de Janeiro',estado:'RJ',profissao:'Coordenadora Pedagógica',plano:'basico',status:'pendente_pagamento',data_inscricao:'2025-01-15T09:00:00Z'},
-      {id:'ALU-004',nome:'Carlos Eduardo Alves',cpf:'321.654.987-00',email:'carlos@universidade.br',telefone:'(31) 97654-3210',cidade:'Belo Horizonte',estado:'MG',profissao:'Professor do Ensino Superior',plano:'premium',status:'ativo',data_inscricao:'2025-01-18T11:00:00Z'},
-      {id:'ALU-005',nome:'Juliana Martins Costa',cpf:'654.321.987-00',email:'juliana@startup.io',telefone:'(51) 98765-1234',cidade:'Porto Alegre',estado:'RS',profissao:'Empreendedora em Ed-Tech',plano:'basico',status:'inativo',data_inscricao:'2025-01-20T16:00:00Z'},
-    ];
-    setDB(demo);
-  }
-})();
-
-// ---- RENDER TABLE ----
+// ── TABELA ────────────────────────────────────────────────────────────────────
 function renderTable(){
-  const db = getDB();
-  const q = document.getElementById('searchInput').value.toLowerCase();
+  const q  = document.getElementById('searchInput').value.toLowerCase();
   const fs = document.getElementById('filterStatus').value;
   const fp = document.getElementById('filterPlano').value;
-  let filtered = db.filter(a => {
-    const matchQ = !q || a.nome.toLowerCase().includes(q) || a.email.toLowerCase().includes(q) || a.id.toLowerCase().includes(q);
-    const matchS = !fs || a.status === fs;
-    const matchP = !fp || a.plano === fp;
-    return matchQ && matchS && matchP;
+
+  const filtered = dbCache.filter(a => {
+    const mQ = !q || (a.nome||'').toLowerCase().includes(q) || (a.email||'').toLowerCase().includes(q) || (a.id||'').toLowerCase().includes(q) || (a.codigo||'').toLowerCase().includes(q);
+    const mS = !fs || a.status === fs;
+    const mP = !fp || a.plano === fp;
+    return mQ && mS && mP;
   });
+
   const tbody = document.getElementById('tableBody');
   const empty = document.getElementById('emptyState');
-  if(filtered.length === 0){ tbody.innerHTML=''; empty.style.display='block'; return; }
-  empty.style.display='none';
-  tbody.innerHTML = filtered.map(a => {
-    const data = a.data_inscricao ? new Date(a.data_inscricao).toLocaleDateString('pt-BR') : '-';
-    const statusBadge = a.status === 'ativo' ? 'badge-ativo' : a.status === 'inativo' ? 'badge-inativo' : 'badge-pendente';
-    const statusLabel = a.status === 'ativo' ? 'Ativo' : a.status === 'inativo' ? 'Inativo' : 'Pendente';
-    const planoBadge = a.plano === 'premium' ? 'badge-premium' : 'badge-basico';
-    const planoLabel = a.plano === 'premium' ? 'Premium' : 'Essencial';
-    return `<tr>
-      <td class="td-id">${a.id}</td>
-      <td class="td-nome">${a.nome}</td>
-      <td class="td-email">${a.email}</td>
-      <td><span class="badge ${planoBadge}">${planoLabel}</span></td>
-      <td><span class="badge ${statusBadge}">${statusLabel}</span></td>
-      <td style="font-size:.8rem;color:var(--muted)">${data}</td>
-      <td><div class="action-btns">
-        <button class="btn-edit" onclick="openEdit('${a.id}')">✏ Editar</button>
-        <button class="btn-del" onclick="openDelete('${a.id}')">🗑 Excluir</button>
-      </div></td>
-    </tr>`;
-  }).join('');
+
+  if(filtered.length === 0){ tbody.innerHTML = ''; empty.style.display = 'block'; }
+  else {
+    empty.style.display = 'none';
+    tbody.innerHTML = filtered.map(a => {
+      const data   = a.criadoEm || a.data_inscricao
+        ? new Date(a.criadoEm || a.data_inscricao).toLocaleDateString('pt-BR') : '-';
+      const sBadge = a.status === 'ativo' ? 'badge-ativo' : a.status === 'inativo' ? 'badge-inativo' : 'badge-pendente';
+      const sLabel = a.status === 'ativo' ? 'Ativo' : a.status === 'inativo' ? 'Inativo' : 'Pendente';
+      const pBadge = a.plano === 'premium' ? 'badge-premium' : 'badge-basico';
+      const pLabel = a.plano === 'premium' ? 'Premium' : 'Essencial';
+      const codigo = a.codigo ? `<span style="font-family:monospace;font-size:.75rem;color:var(--accent)">${a.codigo}</span>` : '-';
+      return `<tr>
+        <td class="td-id">${codigo}</td>
+        <td class="td-nome">${a.nome||'-'}</td>
+        <td class="td-email">${a.email||'-'}</td>
+        <td><span class="badge ${pBadge}">${pLabel}</span></td>
+        <td><span class="badge ${sBadge}">${sLabel}</span></td>
+        <td style="font-size:.8rem;color:var(--muted)">${data}</td>
+        <td><div class="action-btns">
+          <button class="btn-edit" onclick="openEdit('${a.id}')">✏ Editar</button>
+          <button class="btn-del"  onclick="openDelete('${a.id}')">🗑 Excluir</button>
+        </div></td>
+      </tr>`;
+    }).join('');
+  }
   updateStats();
 }
 
 function updateStats(){
-  const db = getDB();
-  document.getElementById('statTotal').textContent = db.length;
-  document.getElementById('statAtivos').textContent = db.filter(a=>a.status==='ativo').length;
-  document.getElementById('statPendentes').textContent = db.filter(a=>a.status==='pendente_pagamento').length;
-  document.getElementById('statPremium').textContent = db.filter(a=>a.plano==='premium').length;
+  document.getElementById('statTotal').textContent    = dbCache.length;
+  document.getElementById('statAtivos').textContent   = dbCache.filter(a => a.status === 'ativo').length;
+  document.getElementById('statPendentes').textContent= dbCache.filter(a => a.status === 'pendente_pagamento').length;
+  document.getElementById('statPremium').textContent  = dbCache.filter(a => a.plano === 'premium').length;
 }
 
-// ---- ADD / EDIT ----
+// ── ADICIONAR / EDITAR ────────────────────────────────────────────────────────
 function openAdd(){
   document.getElementById('modalFormTitle').textContent = 'Novo Aluno';
   document.getElementById('editId').value = '';
@@ -407,83 +505,163 @@ function openAdd(){
 }
 
 function openEdit(id){
-  const db = getDB();
-  const a = db.find(x=>x.id===id);
+  const a = dbCache.find(x => x.id === id);
   if(!a) return;
   document.getElementById('modalFormTitle').textContent = 'Editar Aluno';
   document.getElementById('editId').value = id;
-  document.getElementById('fNome').value = a.nome||'';
-  document.getElementById('fCpf').value = a.cpf||'';
-  document.getElementById('fEmail').value = a.email||'';
-  document.getElementById('fTelefone').value = a.telefone||'';
-  document.getElementById('fCidade').value = a.cidade||'';
-  document.getElementById('fEstado').value = a.estado||'';
-  document.getElementById('fPlano').value = a.plano||'basico';
-  document.getElementById('fStatus').value = a.status||'pendente_pagamento';
+  document.getElementById('fNome').value     = a.nome     || '';
+  document.getElementById('fCpf').value      = a.cpf      || '';
+  document.getElementById('fEmail').value    = a.email    || '';
+  document.getElementById('fTelefone').value = a.telefone || '';
+  document.getElementById('fCidade').value   = a.cidade   || '';
+  document.getElementById('fEstado').value   = a.estado   || '';
+  document.getElementById('fPlano').value    = a.plano    || 'basico';
+  document.getElementById('fStatus').value   = a.status   || 'pendente_pagamento';
   document.getElementById('modalForm').classList.add('show');
 }
 
 function clearForm(){
-  ['fNome','fCpf','fEmail','fTelefone','fCidade'].forEach(id=>document.getElementById(id).value='');
-  document.getElementById('fEstado').value='';
-  document.getElementById('fPlano').value='basico';
-  document.getElementById('fStatus').value='pendente_pagamento';
+  ['fNome','fCpf','fEmail','fTelefone','fCidade'].forEach(id => document.getElementById(id).value = '');
+  document.getElementById('fEstado').value = '';
+  document.getElementById('fPlano').value  = 'basico';
+  document.getElementById('fStatus').value = 'pendente_pagamento';
 }
 
-function saveAluno(){
-  const nome = document.getElementById('fNome').value.trim();
+async function saveAluno(){
+  const nome  = document.getElementById('fNome').value.trim();
   const email = document.getElementById('fEmail').value.trim();
-  if(!nome || !email){ alert('Nome e e-mail são obrigatórios.'); return; }
-  const db = getDB();
+  if(!nome || !email){ toast('Nome e e-mail são obrigatórios.', 'error'); return; }
+
   const editId = document.getElementById('editId').value;
-  const data = {
-    nome, cpf: document.getElementById('fCpf').value,
-    email, telefone: document.getElementById('fTelefone').value,
-    cidade: document.getElementById('fCidade').value,
-    estado: document.getElementById('fEstado').value,
-    plano: document.getElementById('fPlano').value,
-    status: document.getElementById('fStatus').value,
+  const dados  = {
+    nome, email,
+    cpf:      document.getElementById('fCpf').value,
+    telefone: document.getElementById('fTelefone').value,
+    cidade:   document.getElementById('fCidade').value,
+    estado:   document.getElementById('fEstado').value,
+    plano:    document.getElementById('fPlano').value,
+    status:   document.getElementById('fStatus').value,
   };
-  if(editId){
-    const idx = db.findIndex(x=>x.id===editId);
-    if(idx>=0) db[idx] = { ...db[idx], ...data };
-  } else {
-    data.id = 'ALU-' + Date.now();
-    data.data_inscricao = new Date().toISOString();
-    db.push(data);
-  }
-  setDB(db);
+
   closeModal('modalForm');
-  renderTable();
+  showLoading('Salvando no banco de dados…');
+
+  try {
+    if(editId){
+      const idx = dbCache.findIndex(x => x.id === editId);
+      if(idx >= 0) dbCache[idx] = { ...dbCache[idx], ...dados };
+      await gravarBanco(dbCache, 'Admin: edição de ' + nome);
+      toast('Aluno atualizado com sucesso!', 'success');
+    } else {
+      const ano  = new Date().getFullYear();
+      const pref = 'MITE-' + ano;
+      let max = 0;
+      dbCache.forEach(a => {
+        if(a.codigo && a.codigo.startsWith(pref)){
+          const n = parseInt(a.codigo.replace(pref,'')) || 0;
+          if(n > max) max = n;
+        }
+      });
+      dados.id      = 'ALU-' + Date.now();
+      dados.codigo  = pref + String(max + 1).padStart(4, '0');
+      dados.criadoEm = new Date().toISOString();
+      dbCache.push(dados);
+      await gravarBanco(dbCache, 'Admin: inclusão de ' + nome);
+      toast('Aluno incluído com sucesso!', 'success');
+    }
+    hideLoading();
+    renderTable();
+  } catch(e){
+    hideLoading();
+    toast('Erro ao salvar: ' + e.message, 'error');
+  }
 }
 
-// ---- DELETE ----
-let deleteTargetId = null;
-function openDelete(id){ deleteTargetId = id; document.getElementById('modalDel').classList.add('show'); }
-function confirmDelete(){
+// ── EXCLUIR ───────────────────────────────────────────────────────────────────
+function openDelete(id){
+  deleteTargetId = id;
+  document.getElementById('modalDel').classList.add('show');
+}
+
+async function confirmDelete(){
   if(!deleteTargetId) return;
-  const db = getDB().filter(a=>a.id!==deleteTargetId);
-  setDB(db);
+  const nome = (dbCache.find(a => a.id === deleteTargetId) || {}).nome || 'aluno';
+  dbCache = dbCache.filter(a => a.id !== deleteTargetId);
   deleteTargetId = null;
   closeModal('modalDel');
-  renderTable();
+  showLoading('Excluindo do banco de dados…');
+  try {
+    await gravarBanco(dbCache, 'Admin: exclusão de ' + nome);
+    hideLoading();
+    renderTable();
+    toast('Aluno excluído.', 'success');
+  } catch(e){
+    hideLoading();
+    toast('Erro ao excluir: ' + e.message, 'error');
+  }
 }
 
 function closeModal(id){ document.getElementById(id).classList.remove('show'); }
 
-// ---- EXPORT CSV ----
+// ── EXPORTAR CSV ──────────────────────────────────────────────────────────────
 function exportCSV(){
-  const db = getDB();
-  const cols = ['id','nome','cpf','email','telefone','cidade','estado','plano','status','data_inscricao'];
+  const cols = ['codigo','id','nome','cpf','email','telefone','cidade','estado','profissao','plano','status','criadoEm'];
   const header = cols.join(';');
-  const rows = db.map(a => cols.map(c => (a[c]||'').toString().replace(/;/g,',')).join(';'));
-  const csv = [header,...rows].join('\n');
-  const blob = new Blob(['\uFEFF'+csv], {type:'text/csv;charset=utf-8;'});
-  const a = document.createElement('a');
-  a.href = URL.createObjectURL(blob);
-  a.download = 'dados_alunos_mite_' + new Date().toISOString().slice(0,10) + '.csv';
-  a.click();
+  const rows = dbCache.map(a => cols.map(c => (a[c]||'').toString().replace(/;/g,',')).join(';'));
+  const csv  = [header, ...rows].join('\n');
+  const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
+  const el   = document.createElement('a');
+  el.href    = URL.createObjectURL(blob);
+  el.download = 'dados_alunos_mite_' + new Date().toISOString().slice(0,10) + '.csv';
+  el.click();
 }
+
+// ── PAINEL #config — configura o token ───────────────────────────────────────
+function checkConfig(){
+  if(window.location.hash !== '#config') return;
+  let p = document.getElementById('cfgPanel');
+  if(!p){
+    p = document.createElement('div');
+    p.id = 'cfgPanel';
+    p.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.85);z-index:9999;
+      display:flex;align-items:center;justify-content:center;padding:1rem`;
+    p.innerHTML = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;
+        padding:2.5rem;max-width:440px;width:100%">
+        <div style="font-family:var(--font-display);font-size:1.8rem;margin-bottom:.5rem">⚙️ Configuração Admin</div>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6">
+          Cole o Token GitHub (PAT) com permissão <code>repo</code>.<br>
+          O mesmo token usado no formulário de inscrição.</p>
+        <label style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;color:var(--accent);display:block;margin-bottom:.5rem">Token GitHub</label>
+        <input type="password" id="cfgToken" placeholder="github_pat_..."
+          style="width:100%;padding:.75rem 1rem;background:rgba(255,255,255,.04);
+          border:1px solid var(--border);border-radius:8px;color:var(--text);
+          font-size:.9rem;margin-bottom:1rem;font-family:var(--font-body);outline:none">
+        <button onclick="salvarConfig()"
+          style="width:100%;padding:.85rem;background:var(--accent);color:#000;border:none;
+          border-radius:8px;font-weight:800;font-size:.95rem;cursor:pointer">
+          💾 Salvar Token
+        </button>
+        <p style="margin-top:1rem;font-size:.72rem;color:var(--muted);text-align:center">
+          Banco: <code style="color:var(--accent)">dados_alunos_mite.json</code></p>
+      </div>`;
+    document.body.appendChild(p);
+    const saved = getToken();
+    if(saved) document.getElementById('cfgToken').value = saved;
+  }
+  p.style.display = 'flex';
+}
+function salvarConfig(){
+  const t = document.getElementById('cfgToken').value.trim();
+  if(!t){ alert('Cole o token antes de salvar.'); return; }
+  localStorage.setItem('_mtoken_mite', t);
+  document.getElementById('cfgPanel').style.display = 'none';
+  window.location.hash = '';
+  toast('✅ Token salvo! Faça login para acessar o banco.', 'success');
+}
+window.addEventListener('hashchange', checkConfig);
+document.addEventListener('DOMContentLoaded', checkConfig);
+checkConfig();
 </script>
 </body>
 </html>
