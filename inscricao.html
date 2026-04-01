@@ -424,22 +424,23 @@
     lista.push(aluno);
     localStorage.setItem('dados_alunos_mite', JSON.stringify(lista));
 
-    // Atualizar link com parâmetros para o checkout
-    const params = new URLSearchParams({
-      ref: aluno.id,
-      plano: aluno.plano,
-      nome: aluno.nome,
-      email: aluno.email
-    });
-
+    // ── Links de checkout da InfinitePay — um por plano ──────────────────
     const LINKS = {
-      basico:   'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial',
-      premium:  'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial'  
+      basico:  'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial',
+      premium: 'https://loja.infinitepay.io/decastro247/SEU-LINK-DO-PLANO-PREMIUM-AQUI'
     };
+
     const planoEscolhido = document.querySelector('input[name=plano]:checked').value;
-      document.getElementById('btnCheckout').href = LINKS[planoEscolhido];
-    
+    const urlCheckout    = LINKS[planoEscolhido];
+
+    // Atualiza o botão do modal com o link correto
+    document.getElementById('btnCheckout').href = urlCheckout;
+
+    // Abre o modal de confirmação
     document.getElementById('modalSucesso').classList.add('show');
+
+    // Redireciona automaticamente após 3 segundos (evita bloqueio de popup do navegador)
+    setTimeout(function(){ window.location.href = urlCheckout; }, 3000);
   });
 </script>
 </body>
