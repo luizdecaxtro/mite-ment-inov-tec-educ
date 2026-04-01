@@ -327,121 +327,332 @@
   </form>
 </div>
 
-<!-- MODAL SUCESSO -->
-<div class="modal-overlay" id="modalSucesso">
-  <div class="modal">
-    <div class="modal-icon">🎉</div>
-    <h2>Inscrição Confirmada!</h2>
-    <p>Seus dados foram registrados com sucesso no banco <strong>dados_alunos_mite</strong>. Agora você será redirecionado ao checkout seguro para concluir o pagamento.</p>
-    <a href="https://checkout.infinitepay.io/mite-mentoria" class="btn-checkout" id="btnCheckout" target="_blank">
-      💳 Ir para o Checkout — InfinitePay
-    </a>
-    <p class="modal-note">Após o pagamento, você receberá seu acesso em até 24h no e-mail cadastrado.</p>
-  </div>
-</div>
-
 <script>
-  // Máscara CPF
-  document.getElementById('cpf').addEventListener('input', function(e){
-    let v = e.target.value.replace(/\D/g,'');
-    v = v.replace(/(\d{3})(\d)/,'$1.$2');
-    v = v.replace(/(\d{3})(\d)/,'$1.$2');
-    v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
-    e.target.value = v;
+'use strict';
+
+// ── CONFIGURAÇÃO ────────────────────────────────────────────────────────────
+const CONFIG = {
+  repo:  'luizdecaxtro/mite-ment-inov-tec-educ',   // seu repositório GitHub
+  file:  'dados_alunos_mite.json',                  // banco de dados
+  links: {
+    basico:  'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial',
+    premium: 'https://loja.infinitepay.io/decastro247/SEU-LINK-DO-PLANO-PREMIUM-AQUI'
+  }
+};
+function getToken(){ return localStorage.getItem('_mtoken_mite') || ''; }
+// ────────────────────────────────────────────────────────────────────────────
+
+let fileSha = null;
+
+// ── Máscara CPF ──────────────────────────────────────────────────────────────
+document.getElementById('cpf').addEventListener('input', function(e){
+  let v = e.target.value.replace(/\D/g,'');
+  v = v.replace(/(\d{3})(\d)/,'$1.$2');
+  v = v.replace(/(\d{3})(\d)/,'$1.$2');
+  v = v.replace(/(\d{3})(\d{1,2})$/,'$1-$2');
+  e.target.value = v;
+});
+
+// ── Máscara telefone ─────────────────────────────────────────────────────────
+document.getElementById('telefone').addEventListener('input', function(e){
+  let v = e.target.value.replace(/\D/g,'');
+  v = v.replace(/^(\d{2})(\d)/,'($1) $2');
+  v = v.replace(/(\d{5})(\d)/,'$1-$2');
+  e.target.value = v;
+});
+
+// ── Gera código sequencial MITE- ─────────────────────────────────────────────
+function gerarCodigo(alunos){
+  const ano = new Date().getFullYear();
+  const pref = 'MITE-' + ano;
+  let max = 0;
+  alunos.forEach(a => {
+    if(a.codigo && a.codigo.startsWith(pref)){
+      const n = parseInt(a.codigo.replace(pref,'')) || 0;
+      if(n > max) max = n;
+    }
   });
+  return pref + String(max + 1).padStart(4,'0');
+}
 
-  // Máscara telefone
-  document.getElementById('telefone').addEventListener('input', function(e){
-    let v = e.target.value.replace(/\D/g,'');
-    v = v.replace(/^(\d{2})(\d)/,'($1) $2');
-    v = v.replace(/(\d{5})(\d)/,'$1-$2');
-    e.target.value = v;
-  });
+// ── Headers para API GitHub ───────────────────────────────────────────────────
+function headers(){
+  return {
+    'Authorization': 'Bearer ' + getToken(),
+    'Accept': 'application/vnd.github+json',
+    'Content-Type': 'application/json',
+    'X-GitHub-Api-Version': '2022-11-28'
+  };
+}
 
-  // Validação e submit
-  document.getElementById('formInscricao').addEventListener('submit', function(e){
-    e.preventDefault();
-    let valid = true;
+// ── Garante que o arquivo JSON existe no repositório ─────────────────────────
+async function ensureFile(){
+  const url = `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.file}`;
+  const res = await fetch(url, { headers: headers() });
+  if(res.status === 404){
+    const r = await fetch(url, {
+      method: 'PUT', headers: headers(),
+      body: JSON.stringify({ message: 'Inicialização do banco dados_alunos_mite', content: btoa('[]') })
+    });
+    if(!r.ok) throw new Error('Não foi possível criar o banco de dados no GitHub.');
+  }
+}
 
-    function validateField(id, wrapId, condition){
-      const el = document.getElementById(wrapId);
-      if(!condition){ el.classList.add('has-error'); valid=false; }
-      else el.classList.remove('has-error');
+// ── Lê o JSON atual e guarda o SHA para o próximo PUT ─────────────────────────
+async function lerAlunos(){
+  const res = await fetch(
+    `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.file}`,
+    { headers: headers() }
+  );
+  if(res.ok){
+    const data = await res.json();
+    fileSha = data.sha;
+    const decoded = decodeURIComponent(
+      atob(data.content.replace(/\n/g,''))
+        .split('').map(c => '%' + c.charCodeAt(0).toString(16).padStart(2,'0')).join('')
+    );
+    return JSON.parse(decoded);
+  }
+  if(res.status === 404){ fileSha = null; return []; }
+  throw new Error('Erro ao ler banco: HTTP ' + res.status);
+}
+
+// ── Grava o JSON atualizado no repositório ────────────────────────────────────
+async function gravarAlunos(alunos, mensagem){
+  const content = btoa(unescape(encodeURIComponent(JSON.stringify(alunos, null, 2))));
+  const res = await fetch(
+    `https://api.github.com/repos/${CONFIG.repo}/contents/${CONFIG.file}`,
+    {
+      method: 'PUT', headers: headers(),
+      body: JSON.stringify({
+        message: mensagem, content,
+        ...(fileSha ? { sha: fileSha } : {})
+      })
+    }
+  );
+  if(!res.ok){ const e = await res.json(); throw new Error(e.message || 'HTTP ' + res.status); }
+}
+
+// ── Toast de notificação ──────────────────────────────────────────────────────
+function toast(msg, tipo=''){
+  let el = document.getElementById('mite-toast');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'mite-toast';
+    el.style.cssText = `position:fixed;bottom:28px;left:50%;transform:translateX(-50%) translateY(20px);
+      background:var(--card);color:var(--text);padding:13px 24px;border-radius:10px;
+      font-size:.87rem;border:1px solid var(--border);border-left:4px solid var(--accent);
+      box-shadow:0 8px 28px rgba(0,0,0,.4);opacity:0;transition:all .3s;z-index:9999;
+      pointer-events:none;white-space:nowrap;`;
+    document.body.appendChild(el);
+  }
+  el.textContent = msg;
+  el.style.borderLeftColor = tipo === 'error' ? '#f87171' : tipo === 'success' ? '#34d399' : 'var(--accent)';
+  el.style.opacity = '1'; el.style.transform = 'translateX(-50%) translateY(0)';
+  clearTimeout(el._t);
+  el._t = setTimeout(()=>{ el.style.opacity='0'; el.style.transform='translateX(-50%) translateY(20px)'; }, 4000);
+}
+
+// ── Loading overlay ───────────────────────────────────────────────────────────
+function showLoading(msg){
+  let el = document.getElementById('mite-loading');
+  if(!el){
+    el = document.createElement('div');
+    el.id = 'mite-loading';
+    el.innerHTML = `<div style="width:44px;height:44px;border:3px solid rgba(229,180,58,.2);
+      border-top-color:var(--accent);border-radius:50%;animation:mspin .8s linear infinite"></div>
+      <p id="mite-loading-msg" style="color:var(--accent);font-size:.88rem;letter-spacing:.06em"></p>`;
+    el.style.cssText = `position:fixed;inset:0;background:rgba(10,10,15,.88);
+      display:none;align-items:center;justify-content:center;flex-direction:column;gap:16px;z-index:9998`;
+    const style = document.createElement('style');
+    style.textContent = '@keyframes mspin{to{transform:rotate(360deg)}}';
+    document.head.appendChild(style);
+    document.body.appendChild(el);
+  }
+  document.getElementById('mite-loading-msg').textContent = msg || 'Salvando inscrição…';
+  el.style.display = 'flex';
+}
+function hideLoading(){ const el = document.getElementById('mite-loading'); if(el) el.style.display='none'; }
+
+// ── Tela de sucesso com countdown ─────────────────────────────────────────────
+function mostrarSucesso(codigo, urlCheckout){
+  // Esconde o formulário
+  document.querySelector('.page-wrap').innerHTML = `
+    <div style="text-align:center;padding:4rem 1rem;animation:fadeUp .5s ease both">
+      <div style="width:80px;height:80px;border-radius:50%;border:2px solid var(--accent3);
+        background:rgba(52,211,153,.1);display:inline-flex;align-items:center;justify-content:center;
+        font-size:2.5rem;margin-bottom:1.5rem;box-shadow:0 0 30px rgba(52,211,153,.2)">✓</div>
+      <h2 style="font-family:var(--font-display);font-size:2.5rem;letter-spacing:1px;margin-bottom:.8rem">
+        Inscrição Confirmada!</h2>
+      <p style="color:var(--muted);font-size:.95rem;line-height:1.7;max-width:460px;margin:0 auto 1.5rem">
+        Seus dados foram salvos com sucesso no banco <strong style="color:var(--text)">dados_alunos_mite</strong>.</p>
+      <div style="background:rgba(229,180,58,.08);border:1px solid rgba(229,180,58,.25);
+        border-radius:12px;padding:1.2rem 2rem;display:inline-block;margin-bottom:2rem">
+        <p style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+          color:var(--accent);margin-bottom:.4rem">Seu Código de Inscrição</p>
+        <p style="font-family:monospace;font-size:1.8rem;font-weight:700;letter-spacing:.1em;
+          color:var(--text)">${codigo}</p>
+        <p style="font-size:.75rem;color:var(--muted);margin-top:.4rem">Guarde este código — você precisará dele.</p>
+      </div>
+      <div style="background:rgba(79,142,247,.08);border:1px solid rgba(79,142,247,.2);
+        border-radius:10px;padding:1rem 1.5rem;font-size:.85rem;color:var(--accent2);margin-bottom:2rem">
+        Redirecionando para o pagamento em <strong id="mite-count">5</strong> segundos…
+      </div>
+      <a href="${urlCheckout}" style="display:inline-block;background:var(--accent3);color:#000;
+        font-weight:800;font-size:1rem;padding:.9rem 2.5rem;border-radius:10px;text-decoration:none">
+        💳 Ir para o Pagamento Agora
+      </a>
+    </div>`;
+
+  let count = 5;
+  const interval = setInterval(()=>{
+    count--;
+    const el = document.getElementById('mite-count');
+    if(el) el.textContent = count;
+    if(count <= 0){ clearInterval(interval); window.location.href = urlCheckout; }
+  }, 1000);
+}
+
+// ── Validação e envio do formulário ──────────────────────────────────────────
+document.getElementById('formInscricao').addEventListener('submit', async function(e){
+  e.preventDefault();
+  let valid = true;
+
+  function check(wrapId, condition){
+    const el = document.getElementById(wrapId);
+    if(!condition){ el.classList.add('has-error'); valid=false; }
+    else el.classList.remove('has-error');
+  }
+
+  const nome   = document.getElementById('nome').value.trim();
+  const cpf    = document.getElementById('cpf').value.replace(/\D/g,'');
+  const email  = document.getElementById('email').value.trim();
+  const tel    = document.getElementById('telefone').value.replace(/\D/g,'');
+  const nasc   = document.getElementById('nascimento').value;
+  const cidade = document.getElementById('cidade').value.trim();
+  const estado = document.getElementById('estado').value;
+  const prof   = document.getElementById('profissao').value;
+
+  check('f-nome',     nome.length > 2);
+  check('f-cpf',      cpf.length === 11);
+  check('f-email',    /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
+  check('f-telefone', tel.length >= 10);
+  check('f-nasc',     nasc !== '');
+  check('f-cidade',   cidade.length > 1);
+  check('f-estado',   estado !== '');
+  check('f-profissao',prof !== '');
+
+  if(!document.getElementById('termos').checked){   valid=false; toast('Você precisa aceitar os Termos de Uso.','error'); }
+  if(!document.getElementById('maior18').checked){  valid=false; toast('Confirme que tem 18 anos ou mais.','error'); }
+  if(!valid) return;
+
+  if(!getToken()){ toast('Sistema em configuração. Acesse ' + window.location.pathname + '#config','error'); return; }
+
+  const planoEscolhido = document.querySelector('input[name=plano]:checked').value;
+  const urlCheckout    = CONFIG.links[planoEscolhido];
+
+  document.getElementById('btnSubmit').disabled = true;
+  showLoading('Salvando inscrição no banco de dados…');
+
+  try {
+    await ensureFile();
+    const alunos = await lerAlunos();
+
+    // Verifica e-mail duplicado
+    if(alunos.find(a => a.email.toLowerCase() === email.toLowerCase())){
+      hideLoading();
+      document.getElementById('btnSubmit').disabled = false;
+      toast('Este e-mail já está cadastrado!', 'error');
+      return;
     }
 
-    const nome = document.getElementById('nome').value.trim();
-    validateField('nome','f-nome', nome.length > 2);
+    const codigo = gerarCodigo(alunos);
 
-    const cpf = document.getElementById('cpf').value.replace(/\D/g,'');
-    validateField('cpf','f-cpf', cpf.length === 11);
-
-    const email = document.getElementById('email').value.trim();
-    validateField('email','f-email', /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email));
-
-    const tel = document.getElementById('telefone').value.replace(/\D/g,'');
-    validateField('telefone','f-telefone', tel.length >= 10);
-
-    const nasc = document.getElementById('nascimento').value;
-    validateField('nascimento','f-nasc', nasc !== '');
-
-    const cidade = document.getElementById('cidade').value.trim();
-    validateField('cidade','f-cidade', cidade.length > 1);
-
-    const estado = document.getElementById('estado').value;
-    validateField('estado','f-estado', estado !== '');
-
-    const prof = document.getElementById('profissao').value;
-    validateField('profissao','f-profissao', prof !== '');
-
-    if(!document.getElementById('termos').checked){ valid=false; alert('Você precisa aceitar os Termos de Uso.'); }
-    if(!document.getElementById('maior18').checked){ valid=false; alert('Você precisa confirmar que tem 18 anos ou mais.'); }
-
-    if(!valid) return;
-
-    // Simular salvamento no banco dados_alunos_mite
-    const aluno = {
-      id: 'ALU-' + Date.now(),
-      nome: document.getElementById('nome').value,
-      cpf: document.getElementById('cpf').value,
-      email: document.getElementById('email').value,
-      telefone: document.getElementById('telefone').value,
-      nascimento: document.getElementById('nascimento').value,
-      genero: document.getElementById('genero').value,
-      cidade: document.getElementById('cidade').value,
-      estado: document.getElementById('estado').value,
-      profissao: document.getElementById('profissao').value,
-      experiencia: document.getElementById('experiencia').value,
-      expectativa: document.getElementById('expectativa').value,
-      plano: document.querySelector('input[name=plano]:checked').value,
-      newsletter: document.getElementById('newsletter').checked,
-      data_inscricao: new Date().toISOString(),
-      status: 'pendente_pagamento',
-      db: 'dados_alunos_mite'
+    const novoAluno = {
+      id:           'ALU-' + Date.now(),
+      codigo,
+      nome,
+      cpf:          document.getElementById('cpf').value,
+      email,
+      telefone:     document.getElementById('telefone').value,
+      nascimento:   nasc,
+      genero:       document.getElementById('genero').value,
+      cidade,
+      estado,
+      profissao:    prof,
+      experiencia:  document.getElementById('experiencia').value,
+      expectativa:  document.getElementById('expectativa').value,
+      plano:        planoEscolhido,
+      newsletter:   document.getElementById('newsletter').checked,
+      status:       'pendente_pagamento',
+      criadoEm:     new Date().toISOString()
     };
 
-    // Salva localmente (em produção: POST para API/GitHub)
-    const lista = JSON.parse(localStorage.getItem('dados_alunos_mite') || '[]');
-    lista.push(aluno);
-    localStorage.setItem('dados_alunos_mite', JSON.stringify(lista));
+    alunos.push(novoAluno);
+    await gravarAlunos(alunos, 'Novo cadastro: ' + nome + ' [' + codigo + ']');
 
-    // ── Links de checkout da InfinitePay — um por plano ──────────────────
-    const LINKS = {
-      basico:  'https://loja.infinitepay.io/decastro247/uuz3139-mite---mentoria---plano-essencial',
-      premium: 'https://loja.infinitepay.io/decastro247/pen6874-mite---mentoria---plano---premium'
-    };
+    hideLoading();
+    mostrarSucesso(codigo, urlCheckout);
 
-    const planoEscolhido = document.querySelector('input[name=plano]:checked').value;
-    const urlCheckout    = LINKS[planoEscolhido];
+  } catch(err){
+    hideLoading();
+    document.getElementById('btnSubmit').disabled = false;
+    toast('Erro ao salvar: ' + err.message, 'error');
+  }
+});
 
-    // Atualiza o botão do modal com o link correto
-    document.getElementById('btnCheckout').href = urlCheckout;
+// ── Painel secreto para configurar o Token GitHub ────────────────────────────
+// Acesse: inscricao.html#config
+function checkSecretPanel(){
+  if(window.location.hash !== '#config') return;
+  let panel = document.getElementById('mite-secret-panel');
+  if(!panel){
+    panel = document.createElement('div');
+    panel.id = 'mite-secret-panel';
+    panel.style.cssText = `position:fixed;inset:0;background:rgba(0,0,0,.8);z-index:9999;
+      display:flex;align-items:center;justify-content:center;padding:1rem`;
+    panel.innerHTML = `
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:18px;
+        padding:2.5rem;max-width:440px;width:100%;box-shadow:0 20px 60px rgba(0,0,0,.5)">
+        <h3 style="font-family:var(--font-display);font-size:1.8rem;margin-bottom:.5rem;color:var(--text)">
+          ⚙️ Configuração MITe</h3>
+        <p style="font-size:.82rem;color:var(--muted);margin-bottom:1.5rem;line-height:1.6">
+          Cole o Token do GitHub (PAT) com permissão <code>repo</code>.<br>
+          Esta tela só aparece com <code>#config</code> na URL.</p>
+        <label style="font-size:.72rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+          color:var(--accent);display:block;margin-bottom:.5rem">Token GitHub (PAT)</label>
+        <input type="password" id="mite-sp-token" placeholder="github_pat_..."
+          style="width:100%;padding:.75rem 1rem;background:rgba(255,255,255,.04);
+          border:1px solid var(--border);border-radius:8px;color:var(--text);
+          font-size:.9rem;margin-bottom:1rem;font-family:var(--font-body)">
+        <button onclick="salvarToken()"
+          style="width:100%;padding:.85rem;background:var(--accent);color:#000;border:none;
+          border-radius:8px;font-weight:800;font-size:.95rem;cursor:pointer">
+          💾 Salvar Token e Ativar Formulário
+        </button>
+        <p style="margin-top:1rem;font-size:.72rem;color:var(--muted);text-align:center">
+          Banco de dados: <code style="color:var(--accent)">dados_alunos_mite.json</code> · ${CONFIG.repo}</p>
+      </div>`;
+    document.body.appendChild(panel);
+    const saved = getToken();
+    if(saved) document.getElementById('mite-sp-token').value = saved;
+  }
+  panel.style.display = 'flex';
+}
 
-    // Abre o modal de confirmação
-    document.getElementById('modalSucesso').classList.add('show');
+function salvarToken(){
+  const t = document.getElementById('mite-sp-token').value.trim();
+  if(!t){ alert('Cole o token antes de salvar.'); return; }
+  localStorage.setItem('_mtoken_mite', t);
+  document.getElementById('mite-secret-panel').style.display = 'none';
+  window.location.hash = '';
+  toast('✅ Token salvo! O formulário está pronto para receber inscrições.', 'success');
+}
 
-    // Redireciona automaticamente após 3 segundos (evita bloqueio de popup do navegador)
-    setTimeout(function(){ window.location.href = urlCheckout; }, 3000);
-  });
+window.addEventListener('hashchange', checkSecretPanel);
+document.addEventListener('DOMContentLoaded', checkSecretPanel);
+checkSecretPanel();
 </script>
 </body>
 </html>
+
