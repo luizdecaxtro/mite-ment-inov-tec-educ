@@ -17,24 +17,5 @@
     "newsletter": true,
     "status": "pendente_pagamento",
     "criadoEm": "2026-04-01T03:28:33.205Z"
-  },
-  {
-    "id": "ALU-1775043551714",
-    "codigo": "MITE-20260002",
-    "nome": "Antônio José",
-    "cpf": "123.747.939-81",
-    "email": "antoniojose@gmail.com",
-    "telefone": "(98) 98880-4675",
-    "nascimento": "1958-02-02",
-    "genero": "Masculino",
-    "cidade": "São Luís",
-    "estado": "MA",
-    "profissao": "Professor(a) do Ensino Superior",
-    "experiencia": "Intermediário — tenho experiência razoável",
-    "expectativa": "Informações",
-    "plano": "premium",
-    "newsletter": true,
-    "status": "pendente_pagamento",
-    "criadoEm": "2026-04-01T11:39:11.714Z"
   }
 ]
