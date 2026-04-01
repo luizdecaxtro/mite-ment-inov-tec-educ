@@ -55,5 +55,24 @@
     "newsletter": true,
     "status": "pendente_pagamento",
     "criadoEm": "2026-04-01T12:00:28.798Z"
+  },
+  {
+    "id": "ALU-1775045446848",
+    "codigo": "MITE-20260004",
+    "nome": "Luiz de Castro",
+    "cpf": "129.374.939-93",
+    "email": "luizdecastro3009@gmail.com",
+    "telefone": "(98) 98880-4675",
+    "nascimento": "1958-02-02",
+    "genero": "Masculino",
+    "cidade": "São Luís",
+    "estado": "MA",
+    "profissao": "Professor(a) do Ensino Superior",
+    "experiencia": "Básico — uso algumas ferramentas simples",
+    "expectativa": "Informações",
+    "plano": "basico",
+    "newsletter": true,
+    "status": "pendente_pagamento",
+    "criadoEm": "2026-04-01T12:10:46.848Z"
   }
 ]
