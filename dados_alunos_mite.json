@@ -93,5 +93,24 @@
     "newsletter": true,
     "status": "pendente_pagamento",
     "criadoEm": "2026-04-01T12:12:49.752Z"
+  },
+  {
+    "id": "ALU-1775046040118",
+    "codigo": "MITE-20260006",
+    "nome": "lcc de Castro",
+    "cpf": "129.374.793-91",
+    "email": "intelectus247@gmail.com",
+    "telefone": "(98) 98880-4678",
+    "nascimento": "1957-02-02",
+    "genero": "Masculino",
+    "cidade": "São Luís",
+    "estado": "MA",
+    "profissao": "Professor(a) do Ensino Superior",
+    "experiencia": "Básico — uso algumas ferramentas simples",
+    "expectativa": "Informaçõesss",
+    "plano": "premium",
+    "newsletter": true,
+    "status": "pendente_pagamento",
+    "criadoEm": "2026-04-01T12:20:40.118Z"
   }
 ]
