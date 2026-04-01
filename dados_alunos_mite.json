@@ -36,5 +36,24 @@
     "newsletter": true,
     "status": "pendente_pagamento",
     "criadoEm": "2026-04-01T11:39:11.714Z"
+  },
+  {
+    "id": "ALU-1775044828798",
+    "codigo": "MITE-20260003",
+    "nome": "Carlos Augusto",
+    "cpf": "129.374.939-92",
+    "email": "Carlos2029@gmail.com",
+    "telefone": "(98) 98880-4678",
+    "nascimento": "1958-02-02",
+    "genero": "Masculino",
+    "cidade": "São Luís",
+    "estado": "MA",
+    "profissao": "Professor(a) do Ensino Superior",
+    "experiencia": "Intermediário — tenho experiência razoável",
+    "expectativa": "Information",
+    "plano": "premium",
+    "newsletter": true,
+    "status": "pendente_pagamento",
+    "criadoEm": "2026-04-01T12:00:28.798Z"
   }
 ]
