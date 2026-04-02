@@ -2,6 +2,7 @@
 <html lang="pt-BR">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Inscrição - Mentoria MITE</title>
     <style>
         body { font-family: Arial, sans-serif; background-color: #141414; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
@@ -43,32 +44,45 @@
             return;
         }
 
-        // Criando uma ID limpa tirando os pontos do e-mail
         const idLimpa = email.replace(/[^a-zA-Z0-9]/g, "");
-
-        const dadosAluno = {
-            nome: nome,
-            email: email,
-            senha: senha,
-            nota: 0,
-            tentativas: 0,
-            status: "Aguardando Pagamento",
-            data: new Date().toLocaleDateString('pt-BR')
-        };
-
-        // ENVIANDO DIRETAMENTE PARA O FIREBASE VIA API (MUITO SIMPLES!)
         const urlFirebase = "https://mite-mentoria-default-rtdb.firebaseio.com/alunos/" + idLimpa + ".json";
 
-        fetch(urlFirebase, {
-            method: 'PUT',
-            body: JSON.stringify(dadosAluno)
+        // 1. PRIMEIRO VERIFICAMOS SE O ALUNO JÁ EXISTE NO BANCO
+        fetch(urlFirebase)
+        .then(response => response.json())
+        .then(alunoExistente => {
+            
+            let dadosAluno = {
+                nome: nome,
+                email: email,
+                senha: senha,
+                nota: 0,
+                tentativas: 0,
+                status: "Aguardando Pagamento"
+            };
+
+            if (alunoExistente && alunoExistente.data) {
+                // Se já existir, mantemos a data da primeira inscrição dele!
+                dadosAluno.data = alunoExistente.data;
+                dadosAluno.nota = alunoExistente.nota || 0;
+                dadosAluno.tentativas = alunoExistente.tentativas || 0;
+            } else {
+                // Se for aluno novo, cria a data de hoje
+                dadosAluno.data = new Date().toLocaleDateString('pt-BR');
+            }
+
+            // 2. SALVA OU ATUALIZA NO FIREBASE
+            return fetch(urlFirebase, {
+                method: 'PUT',
+                body: JSON.stringify(dadosAluno)
+            });
         })
         .then(response => {
-            alert("Cadastro realizado com sucesso! Redirecionando para o pagamento.");
+            alert("Cadastro verificado com sucesso! Redirecionando para o pagamento.");
             // REDIRECIONA PARA A INFINITEPAY
             window.location.href = "https://loja.infinitepay.io/decastro247/pen6874-mite---mentoria---plano---premium";
         })
-        .catch(error => alert("Erro ao cadastrar. Tente novamente."));
+        .catch(error => alert("Erro ao processar o cadastro. Tente novamente."));
     }
 </script>
 
