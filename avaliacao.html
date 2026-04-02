@@ -251,9 +251,78 @@
     }
 
     function finalizarProva() {
-        if (respostasAluno.includes(null)) {
-            alert("Por favor, responda a todas as questões antes de finalizar!");
-            return;
+    if (respostasAluno.includes(null)) {
+        alert("Por favor, responda a todas as questões antes de finalizar!");
+        return;
+    }
+
+    const email = prompt("Digite seu e-mail para salvar sua nota:");
+    if(!email) return;
+
+    let acertos = 0;
+    questoes.forEach((q, index) => {
+        if (respostasAluno[index] === q.correta) acertos++;
+    });
+    
+    const notaFinal = ((acertos / questoes.length) * 10).toFixed(1);
+    const passou = notaFinal >= 7.0;
+
+    const idLimpa = email.replace(/[^a-zA-Z0-9]/g, "");
+
+    fetch(urlFirebase + idLimpa + ".json")
+    .then(res => res.json())
+    .then(aluno => {
+        if(!aluno) { alert("Aluno não cadastrado!"); return; }
+
+        const tentativasAtualizadas = (aluno.tentativas_prova || 0) + 1;
+
+        const dadosAtualizados = {
+            nota_final: parseFloat(notaFinal),
+            tentativas_prova: tentativasAtualizadas,
+            certificado_emitido: passou
+        };
+
+        return fetch(urlFirebase + idLimpa + ".json", {
+            method: 'PATCH',
+            body: JSON.stringify(dadosAtualizados)
+        });
+    })
+    .then(() => {
+        // Esconde área de questões
+        document.getElementById('areaQuestoes').style.display = 'none';
+        document.getElementById('controles').style.display = 'none';
+        document.getElementById('infoProgresso').style.display = 'none';
+        
+        const msg = document.getElementById('msgResultado');
+        const telaRes = document.getElementById('telaResultado');
+        // Pega o botão padrão para alterar
+        const btnAcao = telaRes.querySelector('button');
+        
+        if (passou) {
+            msg.innerHTML = `Parabéns! Você tirou nota <b>${notaFinal}</b> e foi aprovado! Seu certificado já está disponível.`;
+            msg.style.color = "#4CAF50";
+            
+            // === NOVIDADE AQUI ===
+            // Guarda o e-mail para o certificado usar
+            localStorage.setItem('email_aluno_mite', email);
+            
+            // Altera o botão para abrir o certificado em nova aba
+            btnAcao.innerText = "🏆 Baixar Meu Certificado";
+            btnAcao.onclick = () => window.open('certificado.html', '_blank');
+            btnAcao.style.backgroundColor = "#4CAF50";
+
+        } else {
+            msg.innerHTML = `Você tirou nota <b>${notaFinal}</b>. Infelizmente você não atingiu o mínimo de 7.0. Revise os materiais e tente novamente.`;
+            msg.style.color = "#f44336";
+            
+            // Mantém o botão padrão de voltar
+            btnAcao.innerText = "Voltar para a Plataforma";
+            btnAcao.onclick = () => window.location.href='plataforma.html';
+        }
+        telaRes.style.display = 'block';
+    })
+    .catch(err => alert("Erro ao salvar nota no banco."));
+               
         }
 
         const email = prompt("Digite seu e-mail para salvar sua nota:");
