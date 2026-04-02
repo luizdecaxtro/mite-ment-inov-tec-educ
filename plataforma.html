@@ -90,7 +90,7 @@
             flex-direction: column;
             overflow: hidden;
             border: 1px solid #333;
-            display: none; /* Inicia oculto */
+            display: none;
         }
         .chat-header {
             background-color: #000;
@@ -186,11 +186,11 @@
                     <h4>Manual do Aluno</h4>
                     <p>Tudo o que você precisa saber para progredir.</p>
                 </div>
-                <div class="card" onclick="alert('Abrindo Glossário...')">
+                <div class="card" onclick="window.location.href='manual.html'">
                     <h4>Glossário</h4>
                     <p>Termos técnicos e conceitos explicados.</p>
                 </div>
-                <div class="card" onclick="alert('Iniciando Avaliação...')">
+                <div class="card" onclick="pedirEmailETestarProva()">
                     <h4>Avaliação Final</h4>
                     <p>Disponível após 120 dias de curso.</p>
                 </div>
@@ -233,7 +233,51 @@
     </div>
 
     <script>
-        // FUNÇÃO PARA ABRIR E FECHAR O CHAT
+        // === LÓGICA DE TRAVA DA AVALIAÇÃO (120 DIAS) ===
+        
+        // AQUI FICA O CÓDIGO QUE VOCÊ ESTAVA EM DÚVIDA!
+        const urlFirebase = "https://mite-mentoria-default-rtdb.firebaseio.com/alunos/";
+
+        function pedirEmailETestarProva() {
+            const email = prompt("Por favor, digite o seu e-mail de aluno para verificar a liberação da prova:");
+            if (email) {
+                verificarLiberacaoProva(email);
+            }
+        }
+
+        function verificarLiberacaoProva(emailAluno) {
+            const idLimpa = emailAluno.replace(/[^a-zA-Z0-9]/g, "");
+            
+            fetch(urlFirebase + idLimpa + ".json")
+            .then(res => res.json())
+            .then(aluno => {
+                if (!aluno) {
+                    alert("Aluno não encontrado. Verifique se digitou o e-mail corretamente.");
+                    return;
+                }
+
+                const partesData = aluno.data.split('/');
+                const dataInscricao = new Date(partesData[2], partesData[1] - 1, partesData[0]);
+                const dataAtual = new Date(); 
+
+                const diferencaTempo = dataAtual - dataInscricao;
+                const diasPassados = Math.floor(diferencaTempo / (1000 * 60 * 60 * 24));
+
+                const diasParaLiberar = 120;
+
+                if (diasPassados >= diasParaLiberar) {
+                    alert("Perfeito! Sua avaliação final está liberada. Boa sorte!");
+                    // Aqui você redirecionaria para a página da prova futuramente
+                } else {
+                    const diasFaltantes = diasParaLiberar - diasPassados;
+                    alert(`Acesso bloqueado. Sua avaliação final só estará disponível após 120 dias de curso. Faltam ${diasFaltantes} dias! Aproveite para revisar os materiais.`);
+                }
+            })
+            .catch(error => alert("Erro ao conectar com o banco de dados."));
+        }
+
+        // === LÓGICA DO CHATBOT E INTERAÇÃO ===
+        
         function alternarChat() {
             const chat = document.getElementById('chatWidget');
             const btn = document.getElementById('btnChat');
@@ -250,7 +294,6 @@
             if (e.key === 'Enter') enviarMensagem();
         }
 
-        // MOTOR DO CHATBOT AUTOMATIZADO
         function enviarMensagem() {
             const input = document.getElementById('inputAluno');
             const areaMensagens = document.getElementById('mensagens');
@@ -258,18 +301,14 @@
 
             if (texto === "") return;
 
-            // Renderiza mensagem do Aluno
             areaMensagens.innerHTML += `<div class="msg aluno">${texto}</div>`;
             input.value = "";
             areaMensagens.scrollTop = areaMensagens.scrollHeight;
 
-            // Simula tempo de resposta do robô
             setTimeout(() => {
                 let resposta = "Desculpe, não entendi. Você pode perguntar sobre 'avaliação', 'certificado', 'glossário' ou 'manual'.";
-
                 const textoMinusculo = texto.toLowerCase();
 
-                // Lógica de palavras-chave
                 if (textoMinusculo.includes('manual')) {
                     resposta = "O **Manual do Aluno** está localizado no primeiro carrossel da plataforma. Lá você encontra o passo a passo da mentoria.";
                 } else if (textoMinusculo.includes('glossario') || textoMinusculo.includes('glossário')) {
@@ -284,7 +323,6 @@
                     resposta = "Caso tenha esgotado suas tentativas na prova ou precise de suporte humano, entre em contato pelo e-mail oficial da direção no site lojasdecastro.com.br.";
                 }
 
-                // Renderiza resposta do Bot
                 areaMensagens.innerHTML += `<div class="msg bot">${resposta}</div>`;
                 areaMensagens.scrollTop = areaMensagens.scrollHeight;
             }, 1000);
@@ -292,3 +330,4 @@
     </script>
 </body>
 </html>
+              
