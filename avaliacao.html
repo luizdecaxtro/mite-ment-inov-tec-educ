@@ -1,0 +1,312 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Avaliação Final - MITE</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #141414; color: white; padding: 30px; }
+        .container { max-width: 800px; margin: 0 auto; background-color: #1f1f1f; padding: 30px; border-radius: 8px; }
+        h1 { color: #E50914; text-align: center; }
+        .progresso { text-align: center; color: #aaa; margin-bottom: 20px; font-weight: bold; }
+        .questao { margin-bottom: 25px; display: none; }
+        .questao.ativa { display: block; }
+        h3 { margin-bottom: 15px; line-height: 1.4; }
+        label { display: block; background: #333; padding: 12px; margin-bottom: 10px; border-radius: 4px; cursor: pointer; transition: 0.2s; }
+        label:hover { background: #444; }
+        input[type="radio"] { margin-right: 10px; }
+        .botoes { display: flex; justify-content: space-between; margin-top: 20px; }
+        button { background-color: #E50914; color: white; border: none; padding: 12px 25px; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        button:disabled { background-color: #555; cursor: not-allowed; }
+        .resultado { text-align: center; display: none; }
+        .resultado h2 { color: #4CAF50; font-size: 28px; }
+        .autor { font-size: 11px; text-align: center; color: #aaa; margin-top: 30px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>MITE - Avaliação Final</h1>
+    <div class="progresso" id="infoProgresso">Questão 1 de 30</div>
+    
+    <div id="areaQuestoes">
+        </div>
+
+    <div class="botoes" id="controles">
+        <button id="btnVoltar" onclick="mudarQuestao(-1)" disabled>Anterior</button>
+        <button id="btnAvancar" onclick="mudarQuestao(1)">Próxima</button>
+    </div>
+
+    <div class="resultado" id="telaResultado">
+        <h2>Avaliação Concluída!</h2>
+        <p id="msgResultado" style="font-size: 18px; margin: 20px 0;"></p>
+        <button onclick="window.location.href='plataforma.html'">Voltar para a Plataforma</button>
+    </div>
+
+    <div class="autor">Autor: Luiz de Castro - Mestre em Gestão e Adm. de Empresas</div>
+</div>
+
+<script>
+    const urlFirebase = "https://mite-mentoria-default-rtdb.firebaseio.com/alunos/";
+    
+    const questoes = [
+        {
+            pergunta: "1. O que significa o termo EdTech?",
+            opcoes: ["Educação Técnica de nível médio.", "Uso de tecnologia para facilitar e melhorar a aprendizagem.", "Um software específico criado pelo Google.", "Ensino focado apenas em programação e robótica."],
+            correta: 1
+        },
+        {
+            pergunta: "2. Qual o principal objetivo da Gamificação na educação?",
+            opcoes: ["Transformar a aula em um momento apenas de lazer.", "Substituir os livros físicos por jogos de tabuleiro.", "Usar elementos de jogos para aumentar o engajamento e a motivação dos alunos.", "Obrigar os alunos a jogarem videogame para ganhar nota."],
+            correta: 2
+        },
+        {
+            pergunta: "3. Nas Metodologias Ativas, qual é o papel principal do professor?",
+            opcoes: ["Ser o único detentor e transmissor do conhecimento.", "Atuar como mediador, facilitador e orientador da aprendizagem.", "Apenas aplicar provas e dar notas no final do bimestre.", "Deixar os alunos totalmente sozinhos sem nenhuma orientação."],
+            correta: 1
+        },
+        {
+            pergunta: "4. Qual das alternativas NÃO é um exemplo de Inteligência Artificial aplicada na educação?",
+            opcoes: ["Chatbots que tiram dúvidas de alunos de madrugada.", "Plataformas adaptativas que sugerem exercícios com base na dificuldade do aluno.", "Um quadro negro tradicional de giz.", "Sistemas que corrigem redações e apontam melhorias gramaticais."],
+            correta: 2
+        },
+        {
+            pergunta: "5. O conceito de 'Ensino Híbrido' refere-se a:",
+            opcoes: ["Aulas ministradas por dois professores ao mesmo tempo.", "A combinação entre o ensino presencial e atividades online.", "Uso de materiais em duas línguas diferentes (Bilinguismo).", "Aulas focadas apenas na prática de laboratório."],
+            correta: 1
+        },
+        {
+            pergunta: "6. Na metodologia da 'Sala de Aula Invertida' (Flipped Classroom), o que o aluno faz antes da aula presencial?",
+            opcoes: ["Nada, ele só estuda depois que o professor explica.", "Estuda os conceitos básicos em casa através de vídeos ou leituras.", "Faz a prova final do módulo.", "Tira dúvidas diretamente com o diretor da escola."],
+            correta: 1
+        },
+        {
+            pergunta: "7. O que caracteriza a 'Aprendizagem Baseada em Problemas' (PBL)?",
+            opcoes: ["Os alunos são expostos a punições caso errem os problemas.", "O foco está na memorização de fórmulas matemáticas difíceis.", "Os alunos aprendem investigando e resolvendo um problema complexo do mundo real.", "O professor dita o conteúdo e os alunos copiam em silêncio."],
+            correta: 2
+        },
+        {
+            pergunta: "8. Qual a principal vantagem do uso de Realidade Virtual (RV) na educação?",
+            opcoes: ["Substituir completamente a necessidade de professores.", "Permitir experiências imersivas, como visitar o espaço ou o corpo humano sem sair da sala.", "Garantir que os alunos não conversem durante a aula.", "Reduzir o custo com energia elétrica na escola."],
+            correta: 1
+        },
+        {
+            pergunta: "9. O que é 'Design Thinking' aplicado à educação?",
+            opcoes: ["Um método focado apenas no ensino de artes e desenhos gráficos.", "Uma abordagem centrada no ser humano para resolver problemas e gerar soluções inovadoras.", "O processo de decorar a sala de aula para torná-la mais bonita.", "Um software de computador usado para criar slides de apresentação."],
+            correta: 1
+        },
+        {
+            pergunta: "10. Qual o significado de 'Letramento Digital' para professores?",
+            opcoes: ["Saber digitar rápido no teclado do computador.", "A capacidade de ler livros digitais em formato PDF.", "A habilidade de compreender, utilizar e criar conteúdos usando tecnologias de forma crítica.", "Ter uma conta ativa em todas as redes sociais do momento."],
+            correta: 2
+        },
+        {
+            pergunta: "11. O que são REA (Recursos Educacionais Abertos)?",
+            opcoes: ["Materiais de ensino que são de domínio público ou licenciados de forma aberta para uso e adaptação gratuitos.", "Livros caros que as escolas são obrigadas a comprar de grandes editoras.", "Softwares que só funcionam se o computador estiver conectado à internet.", "Cursos presenciais que acontecem em praças públicas."],
+            correta: 0
+        },
+        {
+            pergunta: "12. Qual a função de um LMS (Learning Management System), como o Moodle ou Google Classroom?",
+            opcoes: ["Servir como um jogo de videogame educativo para os alunos passarem o tempo.", "Gerenciar, distribuir e acompanhar o processo de aprendizagem e conteúdos online.", "Substituir a secretaria física da escola para emissão de históricos.", "Bloquear o acesso dos alunos a redes sociais durante o horário de aula."],
+            correta: 1
+        },
+        {
+            pergunta: "13. O que define a 'Cultura Maker' no ambiente educacional?",
+            opcoes: ["A cultura de assistir a vídeos no YouTube sem interagir.", "O conceito de 'faça você mesmo', onde os alunos aprendem colocando a mão na massa e criando projetos.", "A obrigatoriedade de usar uniformes tecnológicos na escola.", "O estudo focado exclusivamente na história das grandes indústrias."],
+            correta: 1
+        },
+        {
+            pergunta: "14. Na pirâmide de aprendizagem de William Glasser, qual atividade gera maior retenção de conhecimento?",
+            opcoes: ["Ler sobre um assunto.", "Escutar o professor falando.", "Explicar ou ensinar o conteúdo para outra pessoa.", "Apenas assistir a um filme sobre o tema."],
+            correta: 2
+        },
+        {
+            pergunta: "15. O que significa 'Mobile Learning' (M-Learning)?",
+            opcoes: ["Uso de aparelhos de ginástica durante as aulas teóricas.", "Aprendizagem realizada por meio de dispositivos móveis, como smartphones e tablets.", "O ato de mudar as carteiras de lugar frequentemente dentro da sala.", "Cursos voltados exclusivamente para motoristas de aplicativos."],
+            correta: 1
+        },
+        {
+            pergunta: "16. Qual o principal pilar da 'Lei Geral de Proteção de Dados' (LGPD) no contexto escolar?",
+            opcoes: ["Garantir que as notas dos alunos sejam públicas para todos verem.", "Proteger a privacidade e os dados pessoais de alunos, responsáveis e professores.", "Obrigar as escolas a filmarem todas as aulas e postarem na internet.", "Permitir que empresas de marketing comprem os dados dos estudantes livremente."],
+            correta: 1
+        },
+        {
+            pergunta: "17. O que é 'Ensino Adaptativo'?",
+            opcoes: ["Um sistema que força todos os alunos a aprenderem no mesmo ritmo e velocidade.", "O uso de tecnologia para personalizar o ensino de acordo com as necessidades e ritmo de cada estudante.", "Mudar o conteúdo da aula de última hora caso falte energia elétrica.", "Adaptação de prédios escolares antigos para receberem laboratórios de informática."],
+            correta: 1
+        },
+        {
+            pergunta: "18. Qual das alternativas melhor descreve o conceito de 'Curadoria de Conteúdo' pelo professor?",
+            opcoes: ["O ato de criar todo o material do zero, sem pesquisar na internet.", "Selecionar, organizar e dar sentido ao vasto volume de informações disponíveis na web para os alunos.", "Copiar e colar textos inteiros da Wikipédia e entregar para a turma.", "Proibir os alunos de buscarem informações fora do livro didático."],
+            correta: 1
+        },
+        {
+            pergunta: "19. O que é a 'Taxonomia de Bloom' e para que serve?",
+            opcoes: ["Uma classificação de plantas usadas em aulas de biologia.", "Uma estrutura usada para definir e hierarquizar objetivos de aprendizagem, do mais simples ao mais complexo.", "Um método de avaliação focado apenas em punir alunos indisciplinados.", "Um software de inteligência artificial criado para corrigir provas."],
+            correta: 1
+        },
+        {
+            pergunta: "20. No contexto da inovação, o que significa 'Lifelong Learning'?",
+            opcoes: ["A ideia de que a aprendizagem deve ser contínua e ocorrer ao longo de toda a vida.", "Um curso de graduação que dura mais de 10 anos para ser concluído.", "O estudo focado apenas na terceira idade.", "Aprender uma única profissão e nunca mais estudar nada diferente."],
+            correta: 0
+        },
+        {
+            pergunta: "21. Qual o papel da robótica educacional no desenvolvimento de habilidades?",
+            opcoes: ["Apenas ensinar os alunos a montarem brinquedos eletrônicos.", "Desenvolver o raciocínio lógico, resolução de problemas e trabalho em equipe.", "Substituir a disciplina de educação física nas escolas.", "Preparar os alunos exclusivamente para trabalharem em fábricas de automóveis."],
+            correta: 1
+        },
+        {
+            pergunta: "22. O que caracteriza o 'Storytelling' como ferramenta pedagógica?",
+            opcoes: ["O ato de contar histórias de forma envolvente para facilitar a retenção de conceitos complexos.", "Obrigar os alunos a lerem livros de ficção científica em inglês.", "A criação de mentiras para convencer os alunos a estudarem mais.", "Uma técnica de desenho usada para criar histórias em quadrinhos."],
+            correta: 0
+        },
+        {
+            pergunta: "23. O que é 'Microlearning'?",
+            opcoes: ["Aulas extremamente longas focadas em detalhes minúsculos.", "A entrega de conteúdos em pequenas doses ou pílulas de conhecimento de curta duração.", "O estudo exclusivo de microrganismos em aulas de ciências.", "Um curso voltado apenas para pequenos empreendedores."],
+            correta: 1
+        },
+        {
+            pergunta: "24. Qual o objetivo da 'Avaliação Formativa'?",
+            opcoes: ["Atribuir uma nota final e definitiva para aprovar ou reprovar o aluno.", "Acompanhar o processo de aprendizagem continuamente para fornecer feedback e melhorar o ensino.", "Realizar um único teste surpresa no final do ano letivo.", "Classificar os alunos do melhor ao pior em um ranking público."],
+            correta: 1
+        },
+        {
+            pergunta: "25. O que significa o conceito de 'Ubiquidade' na educação digital?",
+            opcoes: ["A impossibilidade de aprender fora das paredes da escola física.", "O fato de a aprendizagem poder acontecer em qualquer lugar e a qualquer momento devido às tecnologias conectadas.", "A dependência extrema de cabos e fios para fazer a internet funcionar.", "O isolamento social provocado pelo uso de computadores."],
+            correta: 1
+        },
+        {
+            pergunta: "26. O que é a abordagem STEAM na educação?",
+            opcoes: ["Uma metodologia focada apenas no ensino de culinária a vapor.", "A integração de Ciências, Tecnologia, Engenharia, Artes e Matemática no currículo.", "Um programa esportivo para treinar atletas de alta performance.", "O estudo exclusivo de línguas mortas, como o latim."],
+            correta: 1
+        },
+        {
+            pergunta: "27. Qual a principal característica de uma 'Trilha de Aprendizagem'?",
+            opcoes: ["Um caminho único e obrigatório que todos os alunos devem seguir exatamente igual.", "Um conjunto flexível de caminhos e conteúdos que o aluno pode percorrer para alcançar um objetivo educacional.", "Uma caminhada ecológica realizada para ensinar sobre o meio ambiente.", "O processo de decorar as regras gramaticais de um idioma."],
+            correta: 1
+        },
+        {
+            pergunta: "28. O que define a 'Empatia' no Design Thinking aplicado à educação?",
+            opcoes: ["Sentir pena dos alunos que tiram notas baixas.", "Compreender profundamente as necessidades, dores e desejos dos estudantes para criar soluções melhores para eles.", "Aprovar todos os alunos automaticamente para evitar conflitos.", "Ignorar os problemas estruturais da escola e focar apenas na tecnologia."],
+            correta: 1
+        },
+        {
+            pergunta: "29. Qual a principal diferença entre EAD tradicional e Ensino Remoto Emergencial?",
+            opcoes: ["O EAD é planejado do zero para o ambiente virtual, enquanto o remoto apenas transpôs a aula presencial para a tela de forma rápida.", "Não há nenhuma diferença, são exatamente a mesma coisa com nomes diferentes.", "O EAD só funciona via rádio e o remoto funciona apenas via internet.", "O remoto é sempre melhor e mais bem estruturado que o EAD tradicional."],
+            correta: 0
+        },
+        {
+            pergunta: "30. Por que a curadoria ética de IA é importante na educação?",
+            opcoes: ["Para garantir que as ferramentas de IA não reproduzam preconceitos, vieses ou forneçam informações falsas aos alunos.", "Para impedir que os alunos usem qualquer tipo de tecnologia nas pesquisas.", "Porque os computadores devem tomar todas as decisões pedagógicas sozinhos.", "Para garantir que apenas os alunos ricos tenham acesso à inteligência artificial."],
+            correta: 0
+        }
+    ];
+
+    let questaoAtual = 0;
+    const respostasAluno = new Array(questoes.length).fill(null);
+
+    const area = document.getElementById('areaQuestoes');
+    questoes.forEach((q, index) => {
+        let htmlOpcoes = '';
+        q.opcoes.forEach((opcao, i) => {
+            htmlOpcoes += `
+                <label>
+                    <input type="radio" name="q${index}" value="${i}" onclick="salvarResposta(${index}, ${i})">
+                    ${opcao}
+                </label>
+            `;
+        });
+
+        area.innerHTML += `
+            <div class="questao ${index === 0 ? 'ativa' : ''}" id="bloco-q${index}">
+                <h3>${q.pergunta}</h3>
+                ${htmlOpcoes}
+            </div>
+        `;
+    });
+
+    function mudarQuestao(passo) {
+        const blocos = document.querySelectorAll('.questao');
+        blocos[questaoAtual].classList.remove('ativa');
+        
+        questaoAtual += passo;
+        blocos[questaoAtual].classList.add('ativa');
+
+        document.getElementById('infoProgresso').innerText = `Questão ${questaoAtual + 1} de ${questoes.length}`;
+
+        document.getElementById('btnVoltar').disabled = (questaoAtual === 0);
+        
+        const btnAvancar = document.getElementById('btnAvancar');
+        if (questaoAtual === questoes.length - 1) {
+            btnAvancar.innerText = "Finalizar Prova";
+            btnAvancar.onclick = finalizarProva;
+        } else {
+            btnAvancar.innerText = "Próxima";
+            btnAvancar.onclick = () => mudarQuestao(1);
+        }
+    }
+
+    function salvarResposta(perguntaIndex, respostaIndex) {
+        respostasAluno[perguntaIndex] = respostaIndex;
+    }
+
+    function finalizarProva() {
+        if (respostasAluno.includes(null)) {
+            alert("Por favor, responda a todas as questões antes de finalizar!");
+            return;
+        }
+
+        const email = prompt("Digite seu e-mail para salvar sua nota:");
+        if(!email) return;
+
+        let acertos = 0;
+        questoes.forEach((q, index) => {
+            if (respostasAluno[index] === q.correta) acertos++;
+        });
+        
+        const notaFinal = ((acertos / questoes.length) * 10).toFixed(1);
+        const passou = notaFinal >= 7.0;
+
+        const idLimpa = email.replace(/[^a-zA-Z0-9]/g, "");
+
+        fetch(urlFirebase + idLimpa + ".json")
+        .then(res => res.json())
+        .then(aluno => {
+            if(!aluno) { alert("Aluno não cadastrado!"); return; }
+
+            const tentativasAtualizadas = (aluno.tentativas_prova || 0) + 1;
+
+            const dadosAtualizados = {
+                nota_final: parseFloat(notaFinal),
+                tentativas_prova: tentativasAtualizadas,
+                certificado_emitido: passou
+            };
+
+            return fetch(urlFirebase + idLimpa + ".json", {
+                method: 'PATCH',
+                body: JSON.stringify(dadosAtualizados)
+            });
+        })
+        .then(() => {
+            document.getElementById('areaQuestoes').style.display = 'none';
+            document.getElementById('controles').style.display = 'none';
+            document.getElementById('infoProgresso').style.display = 'none';
+            
+            const msg = document.getElementById('msgResultado');
+            const telaRes = document.getElementById('telaResultado');
+            
+            if (passou) {
+                msg.innerHTML = `Parabéns! Você tirou nota <b>${notaFinal}</b> e foi aprovado! Seu certificado já está disponível.`;
+                msg.style.color = "#4CAF50";
+            } else {
+                msg.innerHTML = `Você tirou nota <b>${notaFinal}</b>. Infelizmente você não atingiu o mínimo de 7.0. Revise os materiais e tente novamente.`;
+                msg.style.color = "#f44336";
+            }
+            telaRes.style.display = 'block';
+        })
+        .catch(err => alert("Erro ao salvar nota no banco."));
+    }
+</script>
+
+</body>
+</html>
