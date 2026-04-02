@@ -5,29 +5,119 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Login - Mentoria MITE</title>
     <style>
-        body { font-family: Arial, sans-serif; background-color: #141414; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
-        .container { background-color: #1f1f1f; padding: 40px; border-radius: 8px; width: 350px; box-shadow: 0 4px 10px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #E50914; margin-bottom: 25px; }
-        label { font-size: 14px; color: #aaa; }
-        input { width: 100%; padding: 12px; margin: 8px 0 20px 0; border-radius: 4px; border: none; background: #333; color: white; box-sizing: border-box;}
-        button { width: 100%; padding: 12px; background-color: #E50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; font-size: 16px; }
-        button:hover { background-color: #b20710; }
-        .links { text-align: center; margin-top: 20px; font-size: 14px; }
-        .links a { color: #aaa; text-decoration: none; }
-        .links a:hover { color: #E50914; }
-        .autor { font-size: 11px; text-align: center; color: #555; margin-top: 30px; }
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: radial-gradient(circle at top right, #2c0305, #141414 60%);
+            color: white; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            height: 100vh; 
+            margin: 0; 
+        }
+        .container { 
+            background: rgba(31, 31, 31, 0.75); 
+            backdrop-filter: blur(10px);
+            padding: 50px 40px; 
+            border-radius: 16px; 
+            width: 400px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        h2 { 
+            text-align: center; 
+            color: #E50914; 
+            margin-bottom: 30px; 
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+        .campo-grupo {
+            margin-bottom: 22px;
+        }
+        label { 
+            font-size: 15px; 
+            color: #cccccc; 
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        input { 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: 8px; 
+            border: 1px solid rgba(255,255,255,0.1); 
+            background: rgba(45, 45, 45, 0.9); 
+            color: white; 
+            font-size: 16px;
+            transition: all 0.3s ease;
+        }
+        input:focus {
+            outline: none;
+            border-color: #E50914;
+            background: #333;
+            box-shadow: 0 0 8px rgba(229, 9, 20, 0.3);
+        }
+        button { 
+            width: 100%; 
+            padding: 15px; 
+            background-color: #E50914; 
+            color: white; 
+            border: none; 
+            border-radius: 8px; 
+            cursor: pointer; 
+            font-weight: bold; 
+            font-size: 16px; 
+            transition: background 0.2s, transform 0.1s;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-top: 10px;
+        }
+        button:hover { 
+            background-color: #f41521; 
+            transform: translateY(-2px);
+        }
+        button:active {
+            transform: translateY(0);
+        }
+        .links { 
+            text-align: center; 
+            margin-top: 25px; 
+            font-size: 15px; 
+        }
+        .links a { 
+            color: #aaaaaa; 
+            text-decoration: none; 
+            transition: color 0.2s;
+        }
+        .links a:hover { 
+            color: #E50914; 
+        }
+        .autor { 
+            font-size: 11px; 
+            text-align: center; 
+            color: #777777; 
+            margin-top: 40px; 
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 15px;
+        }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <h2>MITE - Área do Aluno</h2>
+    <h2>Área do Aluno</h2>
     
-    <label>E-mail de Cadastro:</label>
-    <input type="email" id="email" placeholder="Digite seu e-mail">
+    <div class="campo-grupo">
+        <label for="email">E-mail de Cadastro</label>
+        <input type="email" id="email" placeholder="Digite seu e-mail">
+    </div>
     
-    <label>Sua Senha:</label>
-    <input type="password" id="senha" placeholder="Digite sua senha">
+    <div class="campo-grupo">
+        <label for="senha">Sua Senha</label>
+        <input type="password" id="senha" placeholder="Digite sua senha">
+    </div>
     
     <button onclick="fazerLogin()">Entrar na Plataforma</button>
     
@@ -49,10 +139,8 @@
         }
 
         const idLimpa = email.replace(/[^a-zA-Z0-9]/g, "");
-        // URL do seu Firebase (Mantenha a mesma que usamos antes)
         const urlFirebase = "https://mite-mentoria-default-rtdb.firebaseio.com/alunos/" + idLimpa + ".json";
 
-        // Busca os dados do aluno no Firebase
         fetch(urlFirebase)
         .then(response => response.json())
         .then(aluno => {
@@ -61,14 +149,8 @@
                 return;
             }
 
-            // Verifica se a senha bate
             if (aluno.senha === senha) {
-                alert(`Bem-vindo de volta, ${aluno.nome}!`);
-                
-                // Guarda o e-mail no navegador para sabermos quem está logado (útil para a prova)
                 localStorage.setItem('email_aluno_mite', email);
-                
-                // Redireciona para a plataforma
                 window.location.href = "plataforma.html";
             } else {
                 alert("Senha incorreta. Tente novamente.");
