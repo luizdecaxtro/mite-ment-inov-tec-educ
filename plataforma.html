@@ -3,331 +3,215 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>MITE - Plataforma de Mentoria</title>
+    <title>Plataforma - MITE</title>
     <style>
-        /* ESTILO BASE NETFLIX */
-        :root {
-            --cor-principal: #E50914;
-            --fundo-escuro: #141414;
-            --fundo-cards: #1f1f1f;
-            --texto: #ffffff;
-        }
-        body {
+        * { box-sizing: border-box; }
+        body { 
+            font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; 
+            background: radial-gradient(circle at top right, #2c0305, #141414 60%);
+            color: white; 
             margin: 0;
-            padding: 0;
-            font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
-            background-color: var(--fundo-escuro);
-            color: var(--texto);
+            padding: 20px;
             display: flex;
-            flex-direction: column;
-            min-height: 100vh;
+            justify-content: center;
+        }
+        .container { 
+            background: rgba(31, 31, 31, 0.75); 
+            backdrop-filter: blur(10px);
+            padding: 30px; 
+            border-radius: 16px; 
+            width: 100%;
+            max-width: 1000px; 
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            margin-top: 20px;
         }
         header {
-            padding: 20px 50px;
-            background: linear-gradient(to bottom, rgba(0,0,0,0.7) 0%, rgba(0,0,0,0) 100%);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        header h1 {
-            color: var(--cor-principal);
-            margin: 0;
-            font-size: 28px;
-        }
-        .banner {
-            padding: 50px;
-            background: linear-gradient(rgba(0,0,0,0.5), rgba(20,20,20,1)), url('https://picsum.photos/1200/400?blur=5') no-repeat center center/cover;
-            height: 300px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-        .banner h2 { font-size: 40px; margin-bottom: 10px; }
-        .banner p { font-size: 18px; max-width: 600px; color: #aaa; }
-
-        /* CARROSSEL DE MATERIAIS */
-        .conteudo { padding: 20px 50px; flex: 1; }
-        .fileira { margin-bottom: 40px; }
-        .fileira h3 { font-size: 20px; margin-bottom: 15px; }
-        .carrossel {
-            display: flex;
-            gap: 15px;
-            overflow-x: auto;
-            padding-bottom: 10px;
-        }
-        .carrossel::-webkit-scrollbar { height: 8px; }
-        .carrossel::-webkit-scrollbar-thumb { background: #333; border-radius: 4px; }
-        .card {
-            background-color: var(--fundo-cards);
-            min-width: 250px;
-            height: 140px;
-            border-radius: 4px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            transition: transform 0.3s ease;
             text-align: center;
-            padding: 10px;
-            box-sizing: border-box;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            padding-bottom: 20px;
+            margin-bottom: 30px;
         }
-        .card:hover { transform: scale(1.05); }
-        .card h4 { margin: 10px 0 5px 0; }
-        .card p { font-size: 12px; color: #aaa; }
-
-        /* CHATBOT */
-        .chat-widget {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            width: 350px;
-            height: 450px;
-            background-color: var(--fundo-cards);
-            border-radius: 10px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.7);
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-            border: 1px solid #333;
-            display: none;
+        h1 { 
+            color: #E50914; 
+            margin: 0; 
+            font-size: 32px;
+            font-weight: 700;
         }
-        .chat-header {
-            background-color: #000;
-            padding: 15px;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-bottom: 1px solid #333;
+        .boas-vindas {
+            color: #aaa;
+            margin-top: 5px;
+            font-size: 16px;
         }
-        .chat-header h4 { margin: 0; color: var(--cor-principal); }
-        .chat-header span { cursor: pointer; font-size: 20px; }
-        .chat-mensagens {
-            flex: 1;
-            padding: 15px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .msg {
-            max-width: 80%;
-            padding: 10px 15px;
-            border-radius: 15px;
-            font-size: 14px;
-            line-height: 1.4;
-        }
-        .msg.bot {
-            background-color: #333;
-            align-self: flex-start;
-            border-bottom-left-radius: 2px;
-        }
-        .msg.aluno {
-            background-color: var(--cor-principal);
-            align-self: flex-end;
-            border-bottom-right-radius: 2px;
-        }
-        .chat-input {
-            display: flex;
-            border-top: 1px solid #333;
-            background-color: #141414;
-        }
-        .chat-input input {
-            flex: 1;
-            background: transparent;
-            border: none;
-            color: white;
-            padding: 15px;
-            outline: none;
-        }
-        .chat-input button {
-            background-color: var(--cor-principal);
-            color: white;
-            border: none;
-            padding: 0 20px;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-abrir-chat {
-            position: fixed;
-            bottom: 30px;
-            right: 30px;
-            background-color: var(--cor-principal);
-            color: white;
-            width: 60px;
-            height: 60px;
-            border-radius: 50%;
+        
+        /* Menu Superior */
+        .menu-navegacao {
             display: flex;
             justify-content: center;
-            align-items: center;
+            gap: 15px;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+        }
+        .menu-navegacao button {
+            background: rgba(255, 255, 255, 0.05);
+            color: white;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            padding: 10px 20px;
+            border-radius: 8px;
             cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.5);
-            font-weight: bold;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+        .menu-navegacao button:hover {
+            background: #E50914;
+            border-color: #E50914;
+            transform: translateY(-2px);
+        }
+
+        /* Grid de Módulos */
+        .grid-modulos {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 20px;
+        }
+        .card-modulo {
+            background: rgba(45, 45, 45, 0.9);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .card-modulo:hover {
+            border-color: #E50914;
+            transform: translateY(-3px);
+            background: rgba(55, 55, 55, 0.9);
+        }
+        .card-modulo h3 {
+            color: #E50914;
+            margin-top: 0;
+            font-size: 18px;
+        }
+        .card-modulo p {
+            color: #ccc;
+            font-size: 14px;
+            line-height: 1.5;
+        }
+        
+        /* Lista de aulas oculta que aparece no clique */
+        .lista-aulas {
+            display: none;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid rgba(255, 255, 255, 0.1);
+            font-size: 13px;
+            color: #aaa;
+        }
+        .lista-aulas.ativo {
+            display: block;
+        }
+        .aula-item {
+            padding: 5px 0;
+            display: flex;
+            align-items: center;
+        }
+        .aula-item::before {
+            content: "▶";
+            color: #E50914;
+            font-size: 10px;
+            margin-right: 8px;
+        }
+
+        .autor { 
+            font-size: 11px; 
+            text-align: center; 
+            color: #777; 
+            margin-top: 40px; 
+            border-top: 1px solid rgba(255,255,255,0.05);
+            padding-top: 15px;
         }
     </style>
 </head>
 <body>
 
+<div class="container">
     <header>
-        <h1>MITE</h1>
-        <div>Aluno Logado | XP: 150 pts</div>
+        <h1>MITE - Plataforma de Estudos</h1>
+        <div class="boas-vindas" id="saudacao">Bem-vindo(a) à sua área de formação</div>
     </header>
 
-    <div class="banner">
-        <h2>Inovação Tecnológica em Educação</h2>
-        <p>Aprenda a transformar a sala de aula usando as ferramentas mais modernas do mercado. Mentoria 100% automatizada com foco na prática.</p>
+    <div class="menu-navegacao">
+        <button onclick="window.location.href='manual.html'">📖 Manual do Aluno</button>
+        <button onclick="abrirGlossario()">📚 Glossário de Termos</button>
+        <button onclick="irParaAvaliacao()">📝 Avaliação Final</button>
+        <button onclick="fazerLogout()" style="background: #333;">Sair</button>
     </div>
 
-    <div class="conteudo">
-        <div class="fileira">
-            <h3>Materiais Didáticos de Apoio</h3>
-            <div class="carrossel">
-                <div class="card" onclick="window.location.href='manual.html'">
-                    <h4>Manual do Aluno</h4>
-                    <p>Tudo o que você precisa saber para progredir.</p>
-                </div>
-                <div class="card" onclick="window.location.href='manual.html'">
-                    <h4>Glossário</h4>
-                    <p>Termos técnicos e conceitos explicados.</p>
-                </div>
-                <div class="card" onclick="pedirEmailETestarProva()">
-                    <h4>Avaliação Final</h4>
-                    <p>Disponível após 120 dias de curso.</p>
-                </div>
+    <div class="grid-modulos">
+        <div class="card-modulo" onclick="toggleAulas(this)">
+            <h3>Módulo 1: Fundamentos</h3>
+            <p>Conceitos básicos sobre inovação tecnológica e seu impacto inicial na educação moderna.</p>
+            <div class="lista-aulas">
+                <div class="aula-item">Aula 1.1 - O que é Inovação?</div>
+                <div class="aula-item">Aula 1.2 - Breve histórico da tecnologia nas escolas</div>
+                <div class="aula-item">Aula 1.3 - O papel do professor mediador</div>
             </div>
         </div>
 
-        <div class="fileira">
-            <h3>Módulos em Vídeo</h3>
-            <div class="carrossel">
-                <div class="card" onclick="alert('Reproduzindo Módulo 1...')">
-                    <h4>Episódio 1: O Futuro da Educação</h4>
-                    <p>Metodologias Ativas</p>
-                </div>
-                <div class="card" onclick="alert('Reproduzindo Módulo 2...')">
-                    <h4>Episódio 2: I.A. na Prática</h4>
-                    <p>Chatbots e automação docente</p>
-                </div>
-                <div class="card" onclick="alert('Reproduzindo Módulo 3...')">
-                    <h4>Episódio 3: Gamificação</h4>
-                    <p>Como engajar alunos nativos digitais</p>
-                </div>
+        <div class="card-modulo" onclick="toggleAulas(this)">
+            <h3>Módulo 2: Metodologias Ativas</h3>
+            <p>Aprenda a aplicar gamificação, sala de aula invertida e PBL no seu dia a dia.</p>
+            <div class="lista-aulas">
+                <div class="aula-item">Aula 2.1 - Gamificação na prática</div>
+                <div class="aula-item">Aula 2.2 - Desenvolvendo a sala de aula invertida</div>
+                <div class="aula-item">Aula 2.3 - Resolução de problemas (PBL)</div>
+            </div>
+        </div>
+
+        <div class="card-modulo" onclick="toggleAulas(this)">
+            <h3>Módulo 3: Ferramentas e IA</h3>
+            <p>Uso prático de inteligência artificial e softwares livres para turbinar o engajamento.</p>
+            <div class="lista-aulas">
+                <div class="aula-item">Aula 3.1 - Inteligência artificial para educadores</div>
+                <div class="aula-item">Aula 3.2 - Curadoria digital de conteúdos</div>
+                <div class="aula-item">Aula 3.3 - Proteção de dados e LGPD</div>
             </div>
         </div>
     </div>
 
-    <div class="btn-abrir-chat" id="btnChat" onclick="alternarChat()">Chat</div>
+    <div class="autor">Autor: Luiz de Castro - Mestre em Gestão e Adm. de Empresas</div>
+</div>
 
-    <div class="chat-widget" id="chatWidget">
-        <div class="chat-header">
-            <h4>MITE Assistente</h4>
-            <span onclick="alternarChat()">×</span>
-        </div>
-        <div class="chat-mensagens" id="mensagens">
-            <div class="msg bot">Olá! Eu sou o robô da Mentoria MITE. Posso tirar dúvidas sobre o curso, manual, glossário ou avaliação. Como posso ajudar?</div>
-        </div>
-        <div class="chat-input">
-            <input type="text" id="inputAluno" placeholder="Digite sua dúvida aqui..." onkeypress="verificarEnter(event)">
-            <button onclick="enviarMensagem()">Enviar</button>
-        </div>
-    </div>
+<script>
+    // Recupera o email salvo no login para personalizar a saudação
+    const emailLogado = localStorage.getItem('email_aluno_mite');
+    if (emailLogado) {
+        document.getElementById('saudacao').innerText = `Logado como: ${emailLogado}`;
+    }
 
-    <script>
-        // === LÓGICA DE TRAVA DA AVALIAÇÃO (120 DIAS) ===
-        
-        // AQUI FICA O CÓDIGO QUE VOCÊ ESTAVA EM DÚVIDA!
-        const urlFirebase = "https://mite-mentoria-default-rtdb.firebaseio.com/alunos/";
+    // Função para abrir e fechar a listagem de aulas
+    function toggleAulas(card) {
+        const lista = card.querySelector('.lista-aulas');
+        lista.classList.toggle('ativo');
+    }
 
-        function pedirEmailETestarProva() {
-            const email = prompt("Por favor, digite o seu e-mail de aluno para verificar a liberação da prova:");
-            if (email) {
-                verificarLiberacaoProva(email);
-            }
-        }
+    function abrirGlossario() {
+        // Alerta provisório para mostrar que está funcionando, 
+        // mas idealmente criaremos o arquivo glossario.html
+        alert("Carregando Glossário Técnico...\n\nTermos inclusos:\n- EdTech\n- PBL\n- Lifelong Learning\n- Ensino Híbrido\n- IA Pervasiva\n- Gamificação");
+    }
 
-        function verificarLiberacaoProva(emailAluno) {
-            const idLimpa = emailAluno.replace(/[^a-zA-Z0-9]/g, "");
-            
-            fetch(urlFirebase + idLimpa + ".json")
-            .then(res => res.json())
-            .then(aluno => {
-                if (!aluno) {
-                    alert("Aluno não encontrado. Verifique se digitou o e-mail corretamente.");
-                    return;
-                }
+    function irParaAvaliacao() {
+        // Redireciona para a avaliação
+        window.location.href = 'avaliacao.html';
+    }
 
-                const partesData = aluno.data.split('/');
-                const dataInscricao = new Date(partesData[2], partesData[1] - 1, partesData[0]);
-                const dataAtual = new Date(); 
+    function fazerLogout() {
+        localStorage.removeItem('email_aluno_mite');
+        window.location.href = 'login.html';
+    }
+</script>
 
-                const diferencaTempo = dataAtual - dataInscricao;
-                const diasPassados = Math.floor(diferencaTempo / (1000 * 60 * 60 * 24));
-
-                const diasParaLiberar = 120;
-
-                if (diasPassados >= diasParaLiberar) {
-                    alert("Perfeito! Sua avaliação final está liberada. Boa sorte!");
-                    // Aqui você redirecionaria para a página da prova futuramente
-                } else {
-                    const diasFaltantes = diasParaLiberar - diasPassados;
-                    alert(`Acesso bloqueado. Sua avaliação final só estará disponível após 120 dias de curso. Faltam ${diasFaltantes} dias! Aproveite para revisar os materiais.`);
-                }
-            })
-            .catch(error => alert("Erro ao conectar com o banco de dados."));
-        }
-
-        // === LÓGICA DO CHATBOT E INTERAÇÃO ===
-        
-        function alternarChat() {
-            const chat = document.getElementById('chatWidget');
-            const btn = document.getElementById('btnChat');
-            if(chat.style.display === 'none' || chat.style.display === '') {
-                chat.style.display = 'flex';
-                btn.style.display = 'none';
-            } else {
-                chat.style.display = 'none';
-                btn.style.display = 'flex';
-            }
-        }
-
-        function verificarEnter(e) {
-            if (e.key === 'Enter') enviarMensagem();
-        }
-
-        function enviarMensagem() {
-            const input = document.getElementById('inputAluno');
-            const areaMensagens = document.getElementById('mensagens');
-            const texto = input.value.trim();
-
-            if (texto === "") return;
-
-            areaMensagens.innerHTML += `<div class="msg aluno">${texto}</div>`;
-            input.value = "";
-            areaMensagens.scrollTop = areaMensagens.scrollHeight;
-
-            setTimeout(() => {
-                let resposta = "Desculpe, não entendi. Você pode perguntar sobre 'avaliação', 'certificado', 'glossário' ou 'manual'.";
-                const textoMinusculo = texto.toLowerCase();
-
-                if (textoMinusculo.includes('manual')) {
-                    resposta = "O **Manual do Aluno** está localizado no primeiro carrossel da plataforma. Lá você encontra o passo a passo da mentoria.";
-                } else if (textoMinusculo.includes('glossario') || textoMinusculo.includes('glossário')) {
-                    resposta = "O **Glossário** traz o significado de termos como IA, EdTech e Gamificação. Acesse-o na fileira de materiais didáticos.";
-                } else if (textoMinusculo.includes('avaliacao') || textoMinusculo.includes('avaliação') || textoMinusculo.includes('prova')) {
-                    resposta = "A avaliação final fica disponível em 120 dias. Você precisa de 7 pontos para passar. Se falhar, terá mais 2 tentativas. Persistindo a reprovação, há um prazo de 30 dias de pausa para estudo.";
-                } else if (textoMinusculo.includes('certificado')) {
-                    resposta = "O Certificado Digital em 'Gestão da Inovação em Tecnologias da Educação' é emitido automaticamente assim que você atingir a nota 7 na avaliação.";
-                } else if (textoMinusculo.includes('nota') || textoMinusculo.includes('sete') || textoMinusculo.includes('7')) {
-                    resposta = "A média para aprovação é 7.0 (sete). Ela garante a emissão imediata do seu certificado!";
-                } else if (textoMinusculo.includes('contato') || textoMinusculo.includes('direção') || textoMinusculo.includes('ajuda')) {
-                    resposta = "Caso tenha esgotado suas tentativas na prova ou precise de suporte humano, entre em contato pelo e-mail oficial da direção no site lojasdecastro.com.br.";
-                }
-
-                areaMensagens.innerHTML += `<div class="msg bot">${resposta}</div>`;
-                areaMensagens.scrollTop = areaMensagens.scrollHeight;
-            }, 1000);
-        }
-    </script>
 </body>
 </html>
               
