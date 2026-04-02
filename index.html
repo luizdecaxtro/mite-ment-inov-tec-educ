@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <title>Inscrição - Mentoria MITE</title>
+    <style>
+        body { font-family: Arial, sans-serif; background-color: #141414; color: white; display: flex; justify-content: center; align-items: center; height: 100vh; margin: 0; }
+        .container { background-color: #1f1f1f; padding: 40px; border-radius: 8px; width: 350px; }
+        h2 { text-align: center; color: #E50914; }
+        input { width: 100%; padding: 10px; margin: 10px 0; border-radius: 4px; border: none; background: #333; color: white; box-sizing: border-box;}
+        button { width: 100%; padding: 12px; background-color: #E50914; color: white; border: none; border-radius: 4px; cursor: pointer; font-weight: bold; }
+        .autor { font-size: 11px; text-align: center; color: #aaa; margin-top: 20px; }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h2>MITE - Inscrição</h2>
+    <p style="text-align: center; font-size: 14px;">Valor do Investimento: R$ 797,00</p>
+    
+    <label>Nome Completo:</label>
+    <input type="text" id="nome" placeholder="Seu nome">
+    
+    <label>E-mail:</label>
+    <input type="email" id="email" placeholder="Seu melhor e-mail">
+    
+    <label>Crie uma Senha:</label>
+    <input type="password" id="senha" placeholder="Senha de acesso">
+    
+    <button onclick="cadastrarAluno()">Inscrever-se e Pagar</button>
+    
+    <div class="autor">Autor: Luiz de Castro - Mestre em Gestão e Adm. de Empresas</div>
+</div>
+
+<script>
+    function cadastrarAluno() {
+        const nome = document.getElementById('nome').value;
+        const email = document.getElementById('email').value;
+        const senha = document.getElementById('senha').value;
+
+        if(!nome || !email || !senha) {
+            alert("Por favor, preencha todos os campos.");
+            return;
+        }
+
+        // Criando uma ID limpa tirando os pontos do e-mail
+        const idLimpa = email.replace(/[^a-zA-Z0-9]/g, "");
+
+        const dadosAluno = {
+            nome: nome,
+            email: email,
+            senha: senha,
+            nota: 0,
+            tentativas: 0,
+            status: "Aguardando Pagamento",
+            data: new Date().toLocaleDateString('pt-BR')
+        };
+
+        // ENVIANDO DIRETAMENTE PARA O FIREBASE VIA API (MUITO SIMPLES!)
+        const urlFirebase = "SUA_URL_DO_FIREBASE_AQUI/alunos/" + idLimpa + ".json";
+
+        fetch(urlFirebase, {
+            method: 'PUT',
+            body: JSON.stringify(dadosAluno)
+        })
+        .then(response => {
+            alert("Cadastro realizado com sucesso! Redirecionando para o pagamento.");
+            // REDIRECIONA PARA A INFINITEPAY
+            window.location.href = "https://loja.infinitepay.io/decastro247/pen6874-mite---mentoria---plano---premium";
+        })
+        .catch(error => alert("Erro ao cadastrar. Tente novamente."));
+    }
+</script>
+
+</body>
+</html>
