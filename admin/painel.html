@@ -1,0 +1,442 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Painel Admin | MITe</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050a14;--surface:#0d1526;--surface2:#111e35;--accent:#00d4ff;--accent2:#ff4d6d;--accent3:#7c3aed;--gold:#f5c518;--text:#e8eef7;--muted:#6b7fa3;--border:rgba(0,212,255,0.15);--green:#10b981;}
+*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh}
+/* LAYOUT */
+.layout{display:grid;grid-template-columns:240px 1fr;min-height:100vh}
+/* SIDEBAR */
+aside{background:var(--surface);border-right:1px solid var(--border);padding:0;display:flex;flex-direction:column}
+.sb-logo{padding:24px 20px;border-bottom:1px solid var(--border)}
+.sb-logo-t{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:var(--accent)}
+.sb-logo-s{font-size:.7rem;color:var(--muted);font-family:'JetBrains Mono',monospace}
+.sb-nav{padding:16px 12px;flex:1}
+.sb-section{font-size:.65rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;padding:12px 8px 6px;font-family:'JetBrains Mono',monospace}
+.sb-item{display:flex;align-items:center;gap:10px;padding:10px 12px;border-radius:8px;cursor:pointer;font-size:.88rem;color:var(--muted);transition:.2s;margin-bottom:2px}
+.sb-item:hover,.sb-item.active{background:rgba(0,212,255,.08);color:var(--accent)}
+.sb-item.active{border-left:3px solid var(--accent);padding-left:9px}
+.sb-item .ico{font-size:1rem;width:20px;text-align:center}
+.sb-foot{padding:16px 20px;border-top:1px solid var(--border)}
+.sb-user{font-size:.8rem;color:var(--muted)}.sb-user strong{color:var(--text);display:block;font-size:.88rem}
+.sb-logout{margin-top:8px;font-size:.78rem;color:var(--accent2);cursor:pointer;background:none;border:none;font-family:'Outfit',sans-serif}
+/* MAIN */
+main{padding:32px 36px;overflow-y:auto}
+.topbar{display:flex;align-items:center;justify-content:space-between;margin-bottom:32px}
+.page-title{font-family:'Bebas Neue',sans-serif;font-size:2rem}
+.btn-sm{padding:9px 18px;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:600;font-size:.82rem;cursor:pointer;transition:.3s;border:none;letter-spacing:.5px}
+.btn-primary{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff}
+.btn-primary:hover{box-shadow:0 6px 20px rgba(0,212,255,.3);transform:translateY(-1px)}
+.btn-danger{background:rgba(255,77,109,.12);color:var(--accent2);border:1px solid rgba(255,77,109,.3)}
+.btn-danger:hover{background:rgba(255,77,109,.2)}
+.btn-edit{background:rgba(0,212,255,.1);color:var(--accent);border:1px solid rgba(0,212,255,.2)}
+.btn-edit:hover{background:rgba(0,212,255,.18)}
+.btn-outline{background:transparent;color:var(--muted);border:1px solid var(--border)}
+/* STAT CARDS */
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:16px;margin-bottom:32px}
+.sc{background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px;position:relative;overflow:hidden}
+.sc::after{content:'';position:absolute;top:0;right:0;width:60px;height:60px;border-radius:50%;filter:blur(24px)}
+.sc.c1::after{background:var(--accent)}.sc.c2::after{background:var(--gold)}.sc.c3::after{background:var(--green)}.sc.c4::after{background:var(--accent2)}
+.sc-label{font-size:.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:6px}
+.sc-val{font-family:'Bebas Neue',sans-serif;font-size:2rem;line-height:1}
+.sc.c1 .sc-val{color:var(--accent)}.sc.c2 .sc-val{color:var(--gold)}.sc.c3 .sc-val{color:var(--green)}.sc.c4 .sc-val{color:var(--accent2)}
+.sc-sub{font-size:.72rem;color:var(--muted);margin-top:4px}
+/* TABLE */
+.table-wrap{background:var(--surface);border:1px solid var(--border);border-radius:16px;overflow:hidden}
+.table-head{display:flex;align-items:center;justify-content:space-between;padding:20px 24px;border-bottom:1px solid var(--border)}
+.table-title{font-weight:700;font-size:1rem}
+.search-bar{display:flex;align-items:center;gap:10px}
+.search-bar input{background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.85rem;outline:none;width:220px;transition:.3s}
+.search-bar input:focus{border-color:var(--accent)}
+table{width:100%;border-collapse:collapse}
+thead tr{background:var(--surface2)}
+th{padding:12px 16px;text-align:left;font-size:.72rem;color:var(--muted);letter-spacing:1px;text-transform:uppercase;font-weight:600}
+tbody tr{border-top:1px solid var(--border);transition:.2s}
+tbody tr:hover{background:rgba(0,212,255,.03)}
+td{padding:14px 16px;font-size:.88rem}
+.status-badge{display:inline-block;font-size:.7rem;padding:3px 10px;border-radius:100px;font-weight:700}
+.status-ativo{background:rgba(16,185,129,.12);color:var(--green)}
+.status-pend{background:rgba(245,197,24,.12);color:var(--gold)}
+.status-inativo{background:rgba(107,127,163,.12);color:var(--muted)}
+.actions{display:flex;gap:6px}
+/* MODAL */
+.modal-bg{display:none;position:fixed;inset:0;background:rgba(5,10,20,.85);z-index:500;align-items:center;justify-content:center;padding:20px}
+.modal-bg.open{display:flex}
+.modal{background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:16px;padding:36px;width:100%;max-width:580px;max-height:90vh;overflow-y:auto;position:relative}
+.modal::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3));border-radius:16px 16px 0 0}
+.modal-title{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;margin-bottom:4px}
+.modal-sub{font-size:.8rem;color:var(--muted);margin-bottom:24px}
+.fg{margin-bottom:14px}
+.fg label{display:block;font-size:.72rem;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:4px}
+.fg input,.fg select{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:10px 13px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.88rem;outline:none;transition:.3s}
+.fg input:focus,.fg select:focus{border-color:var(--accent)}
+.fg select option{background:var(--surface2)}
+.frow2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.modal-btns{display:flex;gap:10px;margin-top:20px}
+.modal-btns button{flex:1;padding:12px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.9rem;cursor:pointer;transition:.3s;border:none;letter-spacing:.5px}
+.confirm-modal{background:var(--surface);border:1px solid rgba(255,77,109,.3);border-radius:16px;padding:32px;max-width:380px;text-align:center}
+.confirm-ico{font-size:3rem;margin-bottom:12px}
+.confirm-title{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;color:var(--accent2);margin-bottom:8px}
+.confirm-sub{color:var(--muted);font-size:.88rem;margin-bottom:24px;line-height:1.6}
+.section-page{display:none}.section-page.active{display:block}
+/* TOAST */
+.toast{position:fixed;bottom:24px;right:24px;background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:14px 20px;font-size:.88rem;display:flex;align-items:center;gap:10px;box-shadow:0 8px 32px rgba(0,0,0,.4);transform:translateX(200%);transition:.3s;z-index:999}
+.toast.show{transform:none}
+.toast.success{border-color:var(--green);color:var(--green)}
+.toast.error{border-color:var(--accent2);color:var(--accent2)}
+@media(max-width:900px){.layout{grid-template-columns:1fr}aside{display:none}.stats-grid{grid-template-columns:1fr 1fr}}
+</style>
+</head>
+<body>
+
+<div class="layout">
+  <aside>
+    <div class="sb-logo">
+      <div class="sb-logo-t">MITe</div>
+      <div class="sb-logo-s">// Painel Administrativo</div>
+    </div>
+    <nav class="sb-nav">
+      <div class="sb-section">Principal</div>
+      <div class="sb-item active" onclick="showPage('dashboard')"><span class="ico">📊</span> Dashboard</div>
+      <div class="sb-item" onclick="showPage('alunos')"><span class="ico">👥</span> Gerenciar Alunos</div>
+      <div class="sb-section">Conteúdo</div>
+      <div class="sb-item" onclick="showPage('modulos')"><span class="ico">🎓</span> Módulos</div>
+      <div class="sb-item" onclick="showPage('materiais')"><span class="ico">📚</span> Materiais</div>
+      <div class="sb-section">Sistema</div>
+      <div class="sb-item" onclick="showPage('config')"><span class="ico">⚙️</span> Configurações</div>
+      <div class="sb-item" onclick="window.open('../index.html')"><span class="ico">🌐</span> Ver Site</div>
+    </nav>
+    <div class="sb-foot">
+      <div class="sb-user"><strong>Luiz de Castro</strong>Administrador Master</div>
+      <button class="sb-logout" onclick="logout()">⬅ Sair do painel</button>
+    </div>
+  </aside>
+
+  <main>
+    <!-- DASHBOARD -->
+    <div class="section-page active" id="page-dashboard">
+      <div class="topbar">
+        <div class="page-title">Dashboard</div>
+        <span style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)" id="data-hora"></span>
+      </div>
+      <div class="stats-grid">
+        <div class="sc c1"><div class="sc-label">Total de Alunos</div><div class="sc-val" id="tot-alunos">0</div><div class="sc-sub">inscritos na plataforma</div></div>
+        <div class="sc c2"><div class="sc-label">Aguard. Pagamento</div><div class="sc-val" id="tot-pend">0</div><div class="sc-sub">inscrições pendentes</div></div>
+        <div class="sc c3"><div class="sc-label">Alunos Ativos</div><div class="sc-val" id="tot-ativ">0</div><div class="sc-sub">com acesso liberado</div></div>
+        <div class="sc c4"><div class="sc-label">Inativos</div><div class="sc-val" id="tot-inativ">0</div><div class="sc-sub">sem acesso ativo</div></div>
+      </div>
+      <div class="table-wrap">
+        <div class="table-head">
+          <div class="table-title">Últimas Inscrições</div>
+          <button class="btn-sm btn-primary" onclick="showPage('alunos')">Ver Todos →</button>
+        </div>
+        <table>
+          <thead><tr><th>Nome</th><th>E-mail</th><th>Data</th><th>Status</th></tr></thead>
+          <tbody id="recent-tbody"><tr><td colspan="4" style="text-align:center;color:var(--muted);padding:32px">Nenhum aluno cadastrado ainda.</td></tr></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- ALUNOS -->
+    <div class="section-page" id="page-alunos">
+      <div class="topbar">
+        <div class="page-title">Gerenciar Alunos</div>
+        <button class="btn-sm btn-primary" onclick="openModalNovo()">+ Incluir Aluno</button>
+      </div>
+      <div class="table-wrap">
+        <div class="table-head">
+          <div class="table-title">Base de Alunos</div>
+          <div class="search-bar">
+            <input type="text" id="busca" placeholder="🔍 Buscar por nome ou e-mail..." oninput="renderTabela()">
+            <select id="filtro-status" onchange="renderTabela()" style="background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:8px 12px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.82rem;outline:none">
+              <option value="">Todos</option>
+              <option value="Ativo">Ativos</option>
+              <option value="Aguardando Pagamento">Aguard. Pagamento</option>
+              <option value="Inativo">Inativos</option>
+            </select>
+          </div>
+        </div>
+        <table>
+          <thead><tr><th>ID</th><th>Nome</th><th>E-mail</th><th>UF</th><th>Inscrição</th><th>Status</th><th>Ações</th></tr></thead>
+          <tbody id="alunos-tbody"></tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- MÓDULOS -->
+    <div class="section-page" id="page-modulos">
+      <div class="topbar"><div class="page-title">Módulos da Mentoria</div></div>
+      <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:16px">
+        <div id="modulos-list"></div>
+      </div>
+      <div id="modulos-cards"></div>
+    </div>
+
+    <!-- MATERIAIS -->
+    <div class="section-page" id="page-materiais">
+      <div class="topbar"><div class="page-title">Materiais Didáticos</div></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px">
+        <p style="color:var(--muted);font-size:.92rem;line-height:1.8">Gerencie os materiais disponíveis para os alunos: manuais, glossários, e-books, kits, planilhas e mais. Em produção, integre com um CDN ou repositório GitHub para upload e versionamento dos arquivos.</p>
+        <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:14px;margin-top:24px" id="mat-admin"></div>
+      </div>
+    </div>
+
+    <!-- CONFIG -->
+    <div class="section-page" id="page-config">
+      <div class="topbar"><div class="page-title">Configurações</div></div>
+      <div style="background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:32px;max-width:600px">
+        <div style="font-weight:700;margin-bottom:20px">Informações da Mentoria</div>
+        <div class="fg"><label>Título</label><input type="text" value="Mentoria da Inovação Tecnológica em Educação"></div>
+        <div class="fg"><label>Autor</label><input type="text" value="Luiz de Castro – Mestre em Gestão e Adm. de Empresas"></div>
+        <div class="fg"><label>Site de Administração</label><input type="text" value="www.lojasdecastro.com.br"></div>
+        <div class="fg"><label>Link do Checkout (InfinitePay)</label><input type="text" value="https://infinitepay.io/checkout/MITe"></div>
+        <div class="fg"><label>Repositório GitHub</label><input type="text" value="https://github.com/lojasdecastro/mite"></div>
+        <button class="btn-sm btn-primary" style="margin-top:8px" onclick="toast('Configurações salvas!','success')">💾 Salvar Configurações</button>
+      </div>
+    </div>
+  </main>
+</div>
+
+<!-- MODAL INCLUIR / EDITAR ALUNO -->
+<div class="modal-bg" id="modal-aluno">
+  <div class="modal">
+    <div class="modal-title" id="modal-tit">Incluir Aluno</div>
+    <div class="modal-sub" id="modal-sub">Preencha os dados do novo aluno</div>
+    <input type="hidden" id="edit-id">
+    <div class="frow2">
+      <div class="fg"><label>Nome Completo</label><input type="text" id="m-nome" placeholder="Nome completo"></div>
+      <div class="fg"><label>CPF</label><input type="text" id="m-cpf" placeholder="000.000.000-00" maxlength="14"></div>
+    </div>
+    <div class="fg"><label>E-mail</label><input type="email" id="m-email" placeholder="email@exemplo.com"></div>
+    <div class="frow2">
+      <div class="fg"><label>WhatsApp</label><input type="tel" id="m-tel" placeholder="(00) 00000-0000"></div>
+      <div class="fg"><label>Estado (UF)</label>
+        <select id="m-uf">
+          <option value="">Selecione...</option>
+          <option>AC</option><option>AL</option><option>AP</option><option>AM</option><option>BA</option><option>CE</option><option>DF</option><option>ES</option><option>GO</option><option>MA</option><option>MT</option><option>MS</option><option>MG</option><option>PA</option><option>PB</option><option>PR</option><option>PE</option><option>PI</option><option>RJ</option><option>RN</option><option>RS</option><option>RO</option><option>RR</option><option>SC</option><option>SP</option><option>SE</option><option>TO</option>
+        </select>
+      </div>
+    </div>
+    <div class="frow2">
+      <div class="fg"><label>Formação</label>
+        <select id="m-form">
+          <option>Ensino Médio</option><option>Graduação</option><option>Pós-graduação / MBA</option><option>Mestrado</option><option>Doutorado</option>
+        </select>
+      </div>
+      <div class="fg"><label>Status</label>
+        <select id="m-status">
+          <option>Aguardando Pagamento</option><option>Ativo</option><option>Inativo</option>
+        </select>
+      </div>
+    </div>
+    <div class="fg"><label>Área de Atuação</label><input type="text" id="m-area" placeholder="Ex: Gestão / TI / Finanças"></div>
+    <div class="fg"><label>Cargo</label><input type="text" id="m-cargo" placeholder="Ex: Gerente de Operações"></div>
+    <div class="modal-btns">
+      <button style="background:var(--surface2);color:var(--muted);border:1px solid var(--border)" onclick="closeModal('modal-aluno')">Cancelar</button>
+      <button style="background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff" onclick="salvarAluno()">💾 Salvar</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL CONFIRMAR EXCLUSÃO -->
+<div class="modal-bg" id="modal-del">
+  <div class="confirm-modal">
+    <div class="confirm-ico">⚠️</div>
+    <div class="confirm-title">Excluir Aluno</div>
+    <p class="confirm-sub">Tem certeza que deseja excluir este aluno? Esta ação não pode ser desfeita.</p>
+    <div style="display:flex;gap:10px">
+      <button class="btn-sm btn-outline" style="flex:1;padding:12px" onclick="closeModal('modal-del')">Cancelar</button>
+      <button class="btn-sm btn-danger" style="flex:1;padding:12px;font-weight:700" onclick="confirmarDelete()">🗑 Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- TOAST -->
+<div class="toast" id="toast"></div>
+
+<script>
+// Proteção de acesso
+if(!sessionStorage.getItem('mit_admin')){window.location.href='login.html'}
+
+// Dados
+function getAlunos(){return JSON.parse(localStorage.getItem('mit_alunos')||'[]')}
+function saveAlunos(a){localStorage.setItem('mit_alunos',JSON.stringify(a))}
+
+// Helpers
+function formatDate(iso){if(!iso)return '-';const d=new Date(iso);return d.toLocaleDateString('pt-BR')}
+function statusBadge(s){const m={Ativo:'status-ativo','Aguardando Pagamento':'status-pend',Inativo:'status-inativo'};return`<span class="status-badge ${m[s]||'status-inativo'}">${s}</span>`}
+
+// Página
+function showPage(id){
+  document.querySelectorAll('.section-page').forEach(p=>p.classList.remove('active'))
+  document.getElementById('page-'+id).classList.add('active')
+  document.querySelectorAll('.sb-item').forEach(i=>i.classList.remove('active'))
+  if(id==='alunos')renderTabela()
+  if(id==='dashboard')renderDash()
+  if(id==='modulos')renderModulos()
+  if(id==='materiais')renderMateriais()
+}
+
+// Dashboard
+function renderDash(){
+  const a=getAlunos()
+  document.getElementById('tot-alunos').textContent=a.length
+  document.getElementById('tot-pend').textContent=a.filter(x=>x.status==='Aguardando Pagamento').length
+  document.getElementById('tot-ativ').textContent=a.filter(x=>x.status==='Ativo').length
+  document.getElementById('tot-inativ').textContent=a.filter(x=>x.status==='Inativo').length
+  const tbody=document.getElementById('recent-tbody')
+  const rec=a.slice(-5).reverse()
+  if(!rec.length){tbody.innerHTML='<tr><td colspan="4" style="text-align:center;color:var(--muted);padding:32px">Nenhum aluno ainda.</td></tr>';return}
+  tbody.innerHTML=rec.map(al=>`<tr><td>${al.nome}</td><td>${al.email}</td><td>${formatDate(al.dataInscricao)}</td><td>${statusBadge(al.status)}</td></tr>`).join('')
+}
+
+// Tabela alunos
+function renderTabela(){
+  const busca=document.getElementById('busca').value.toLowerCase()
+  const filtro=document.getElementById('filtro-status').value
+  let alunos=getAlunos()
+  if(busca)alunos=alunos.filter(a=>a.nome.toLowerCase().includes(busca)||a.email.toLowerCase().includes(busca))
+  if(filtro)alunos=alunos.filter(a=>a.status===filtro)
+  const tbody=document.getElementById('alunos-tbody')
+  if(!alunos.length){tbody.innerHTML='<tr><td colspan="7" style="text-align:center;color:var(--muted);padding:32px">Nenhum aluno encontrado.</td></tr>';return}
+  tbody.innerHTML=alunos.map((a,i)=>`
+    <tr>
+      <td style="font-family:'JetBrains Mono',monospace;font-size:.75rem;color:var(--muted)">${a.id||'---'}</td>
+      <td><strong>${a.nome}</strong></td>
+      <td style="color:var(--muted)">${a.email}</td>
+      <td>${a.estado||'-'}</td>
+      <td style="color:var(--muted)">${formatDate(a.dataInscricao)}</td>
+      <td>${statusBadge(a.status)}</td>
+      <td><div class="actions">
+        <button class="btn-sm btn-edit" onclick="editAluno('${a.id}')">✏️ Editar</button>
+        <button class="btn-sm btn-danger" onclick="askDelete('${a.id}')">🗑</button>
+      </div></td>
+    </tr>`).join('')
+}
+
+// Modal incluir
+function openModalNovo(){
+  document.getElementById('modal-tit').textContent='Incluir Aluno'
+  document.getElementById('modal-sub').textContent='Preencha os dados do novo aluno'
+  document.getElementById('edit-id').value=''
+  ;['m-nome','m-cpf','m-email','m-tel','m-area','m-cargo'].forEach(id=>document.getElementById(id).value='')
+  document.getElementById('m-uf').value=''
+  document.getElementById('m-form').value='Graduação'
+  document.getElementById('m-status').value='Aguardando Pagamento'
+  document.getElementById('modal-aluno').classList.add('open')
+}
+
+// Modal editar
+function editAluno(id){
+  const alunos=getAlunos()
+  const a=alunos.find(x=>x.id===id)
+  if(!a)return
+  document.getElementById('modal-tit').textContent='Editar Aluno'
+  document.getElementById('modal-sub').textContent='Altere os dados do aluno'
+  document.getElementById('edit-id').value=id
+  document.getElementById('m-nome').value=a.nome||''
+  document.getElementById('m-cpf').value=a.cpf||''
+  document.getElementById('m-email').value=a.email||''
+  document.getElementById('m-tel').value=a.telefone||''
+  document.getElementById('m-uf').value=a.estado||''
+  document.getElementById('m-form').value=a.formacao||'Graduação'
+  document.getElementById('m-status').value=a.status||'Aguardando Pagamento'
+  document.getElementById('m-area').value=a.area||''
+  document.getElementById('m-cargo').value=a.cargo||''
+  document.getElementById('modal-aluno').classList.add('open')
+}
+
+// Salvar aluno (novo ou editar)
+function salvarAluno(){
+  const id=document.getElementById('edit-id').value
+  const alunos=getAlunos()
+  const novo={
+    id:id||(('MIT'+Date.now())),
+    nome:document.getElementById('m-nome').value,
+    cpf:document.getElementById('m-cpf').value,
+    email:document.getElementById('m-email').value,
+    telefone:document.getElementById('m-tel').value,
+    estado:document.getElementById('m-uf').value,
+    formacao:document.getElementById('m-form').value,
+    status:document.getElementById('m-status').value,
+    area:document.getElementById('m-area').value,
+    cargo:document.getElementById('m-cargo').value,
+    dataInscricao:id?alunos.find(x=>x.id===id)?.dataInscricao:new Date().toISOString()
+  }
+  if(id){const idx=alunos.findIndex(x=>x.id===id);if(idx>-1)alunos[idx]=novo}
+  else alunos.push(novo)
+  saveAlunos(alunos)
+  closeModal('modal-aluno')
+  renderTabela();renderDash()
+  toast(id?'Aluno atualizado com sucesso!':'Aluno incluído com sucesso!','success')
+}
+
+// Excluir
+let _delId=''
+function askDelete(id){_delId=id;document.getElementById('modal-del').classList.add('open')}
+function confirmarDelete(){
+  const alunos=getAlunos().filter(a=>a.id!==_delId)
+  saveAlunos(alunos)
+  closeModal('modal-del')
+  renderTabela();renderDash()
+  toast('Aluno excluído.','error')
+}
+
+function closeModal(id){document.getElementById(id).classList.remove('open')}
+
+// Módulos
+const MODS=[
+  {num:'M01',title:'O Novo Paradigma da Gestão',aulas:6,status:'Publicado'},
+  {num:'M02',title:'Design Thinking Aplicado',aulas:5,status:'Publicado'},
+  {num:'M03',title:'Gestão Baseada em Dados',aulas:6,status:'Publicado'},
+  {num:'M04',title:'IA na Gestão Organizacional',aulas:7,status:'Publicado'},
+  {num:'M05',title:'Transformação Digital',aulas:6,status:'Publicado'},
+  {num:'M06',title:'Ecossistemas de Inovação',aulas:5,status:'Publicado'},
+  {num:'M07',title:'Governança Digital e Compliance',aulas:5,status:'Publicado'},
+  {num:'M08',title:'Projeto Final: Plano de Inovação',aulas:8,status:'Publicado'},
+  {num:'BÔNUS',title:'Masterclasses Exclusivas',aulas:4,status:'Publicado'},
+]
+function renderModulos(){
+  document.getElementById('modulos-cards').innerHTML=`<div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:14px">`+
+  MODS.map(m=>`<div style="background:var(--surface);border:1px solid var(--border);border-radius:12px;padding:20px">
+    <div style="font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);margin-bottom:6px">${m.num}</div>
+    <div style="font-weight:700;margin-bottom:4px">${m.title}</div>
+    <div style="font-size:.8rem;color:var(--muted)">${m.aulas} aulas &nbsp;·&nbsp; <span style="color:var(--green)">${m.status}</span></div>
+  </div>`).join('')+'</div>'
+}
+
+// Materiais
+const MATS=['📘 Manual do Aluno','📖 Glossário Tech','🧰 Toolkit de Gestão','🔬 Biblioteca de Cases','📱 E-books Exclusivos','🗺️ Mapas Mentais','❓ Banco de Quizzes','📊 Planilhas Analíticas','🎓 Certificado Digital']
+function renderMateriais(){
+  document.getElementById('mat-admin').innerHTML=MATS.map(m=>`
+    <div style="background:var(--surface2);border:1px solid var(--border);border-radius:10px;padding:16px;text-align:center">
+      <div style="font-size:1.6rem;margin-bottom:8px">${m.split(' ')[0]}</div>
+      <div style="font-size:.82rem;font-weight:600">${m.split(' ').slice(1).join(' ')}</div>
+      <button class="btn-sm btn-edit" style="margin-top:10px;font-size:.72rem;padding:5px 12px" onclick="toast('Em breve: upload de arquivos','success')">Gerenciar</button>
+    </div>`).join('')
+}
+
+// Toast
+function toast(msg,type='success'){
+  const t=document.getElementById('toast')
+  t.textContent=(type==='success'?'✅ ':'❌ ')+msg
+  t.className='toast '+type+' show'
+  setTimeout(()=>t.classList.remove('show'),3000)
+}
+
+// Data/hora
+function updateClock(){document.getElementById('data-hora').textContent=new Date().toLocaleString('pt-BR')}
+setInterval(updateClock,1000);updateClock()
+
+// Logout
+function logout(){sessionStorage.removeItem('mit_admin');window.location.href='login.html'}
+
+// Inicializar
+renderDash()
+</script>
+</body>
+</html>
