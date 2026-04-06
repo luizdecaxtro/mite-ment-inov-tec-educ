@@ -1,0 +1,250 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Mentoria da Mentoria da Inovação Tecnológica em Educação | Luiz de Castro</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700;900&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050a14;--surface:#0d1526;--surface2:#111e35;--accent:#00d4ff;--accent2:#ff4d6d;--accent3:#7c3aed;--gold:#f5c518;--text:#e8eef7;--muted:#6b7fa3;--border:rgba(0,212,255,0.15);}
+*{margin:0;padding:0;box-sizing:border-box}html{scroll-behavior:smooth}body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;overflow-x:hidden}
+nav{position:fixed;top:0;left:0;right:0;z-index:200;display:flex;align-items:center;justify-content:space-between;padding:14px 48px;background:rgba(5,10,20,0.92);backdrop-filter:blur(20px);border-bottom:1px solid var(--border)}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:1.3rem;letter-spacing:3px;color:var(--accent)}
+.nav-links{display:flex;gap:28px;list-style:none}.nav-links a{color:var(--muted);text-decoration:none;font-size:.85rem;font-weight:500;letter-spacing:1px;transition:.3s}.nav-links a:hover{color:var(--accent)}
+.nav-cta{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:9px 22px;border-radius:6px;font-family:'Outfit',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;letter-spacing:1px;transition:.3s;text-decoration:none}.nav-cta:hover{transform:translateY(-2px);box-shadow:0 8px 24px rgba(0,212,255,.4)}
+.hero{min-height:100vh;display:flex;align-items:center;justify-content:center;text-align:center;position:relative;overflow:hidden;padding:120px 24px 80px}
+.hero-bg{position:absolute;inset:0;background:radial-gradient(ellipse 80% 60% at 50% 40%,rgba(0,212,255,.07) 0%,transparent 70%),radial-gradient(ellipse 50% 70% at 80% 80%,rgba(124,58,237,.07) 0%,transparent 70%)}
+.grid-ov{position:absolute;inset:0;background-image:linear-gradient(rgba(0,212,255,.04) 1px,transparent 1px),linear-gradient(90deg,rgba(0,212,255,.04) 1px,transparent 1px);background-size:60px 60px}
+.hero-content{position:relative;z-index:1;max-width:920px}
+.badge-live{display:inline-flex;align-items:center;gap:8px;background:rgba(0,212,255,.1);border:1px solid rgba(0,212,255,.3);border-radius:100px;padding:7px 20px;font-size:.78rem;font-weight:700;letter-spacing:2px;color:var(--accent);text-transform:uppercase;margin-bottom:28px}
+.bdot{width:8px;height:8px;background:var(--accent2);border-radius:50%;animation:pulse 2s infinite}
+@keyframes pulse{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.4;transform:scale(1.4)}}
+h1{font-family:'Bebas Neue',sans-serif;font-size:clamp(3rem,8vw,7rem);line-height:.92;letter-spacing:2px;margin-bottom:8px}
+.l1{color:var(--text)}.l2{color:var(--accent);text-shadow:0 0 60px rgba(0,212,255,.4)}.l3{color:var(--gold)}
+.hero-sub{font-size:clamp(.95rem,1.8vw,1.2rem);color:var(--muted);max-width:620px;margin:20px auto 12px;font-weight:300;line-height:1.8}
+.atag{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--gold);margin-bottom:40px;letter-spacing:1px}
+.hbtns{display:flex;gap:14px;justify-content:center;flex-wrap:wrap;margin-bottom:64px}
+.btn-p{background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:15px 38px;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;letter-spacing:1px;transition:.3s;text-decoration:none;display:inline-block}
+.btn-p:hover{transform:translateY(-3px);box-shadow:0 12px 40px rgba(0,212,255,.4)}
+.btn-o{background:transparent;color:var(--accent);border:1px solid rgba(0,212,255,.4);padding:15px 38px;border-radius:8px;font-family:'Outfit',sans-serif;font-weight:600;font-size:1rem;cursor:pointer;letter-spacing:1px;transition:.3s;text-decoration:none;display:inline-block}
+.btn-o:hover{background:rgba(0,212,255,.08);transform:translateY(-3px)}
+.stats-row{display:flex;gap:0;justify-content:center;flex-wrap:wrap;border:1px solid var(--border);border-radius:16px;overflow:hidden;background:var(--surface);max-width:700px;margin:0 auto}
+.stat{text-align:center;padding:24px 48px;border-right:1px solid var(--border)}.stat:last-child{border-right:none}
+.snum{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;color:var(--accent);line-height:1}
+.slbl{font-size:.72rem;color:var(--muted);letter-spacing:2px;text-transform:uppercase;margin-top:4px}
+.sw{padding:100px 48px;max-width:1240px;margin:0 auto}
+.slabel{font-family:'JetBrains Mono',monospace;font-size:.78rem;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.stitle{font-family:'Bebas Neue',sans-serif;font-size:clamp(2.2rem,4.5vw,3.8rem);line-height:1;margin-bottom:16px}
+.ssub{color:var(--muted);font-size:1rem;max-width:560px;line-height:1.75}
+.nw{background:var(--surface);padding:60px 0 40px;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.ni{max-width:1300px;margin:0 auto;padding:0 48px}
+.nsl{font-size:.75rem;color:var(--muted);letter-spacing:3px;text-transform:uppercase;margin-bottom:6px;font-family:'JetBrains Mono',monospace}
+.nrt{font-family:'Bebas Neue',sans-serif;font-size:1.6rem;color:var(--text);margin-bottom:20px}
+.nrow{display:flex;gap:14px;overflow-x:auto;padding-bottom:12px;scrollbar-width:thin;scrollbar-color:var(--accent3) transparent}
+.nrow::-webkit-scrollbar{height:4px}.nrow::-webkit-scrollbar-thumb{background:var(--accent3);border-radius:4px}
+.mc{min-width:256px;background:var(--surface2);border-radius:10px;overflow:hidden;border:1px solid var(--border);transition:.35s;cursor:pointer;flex-shrink:0;position:relative}
+.mc:hover{transform:scale(1.05) translateY(-4px);border-color:var(--accent);box-shadow:0 12px 40px rgba(0,212,255,.2);z-index:2}
+.mth{height:148px;display:flex;align-items:center;justify-content:center;font-size:3.5rem;position:relative}
+.mthg{position:absolute;bottom:0;left:0;right:0;height:60px;background:linear-gradient(transparent,var(--surface2))}
+.mn{position:absolute;top:10px;left:10px;font-family:'Bebas Neue',sans-serif;font-size:.9rem;color:var(--accent);background:rgba(0,0,0,.7);padding:1px 8px;border-radius:4px;letter-spacing:1px}
+.ms{position:absolute;top:10px;right:10px;font-size:.9rem}
+.mb{padding:14px}.mb h4{font-weight:700;font-size:.9rem;margin-bottom:5px;line-height:1.3}.mb p{font-size:.78rem;color:var(--muted);line-height:1.5}
+.mtags{display:flex;gap:6px;margin-top:10px;flex-wrap:wrap}
+.t{font-size:.68rem;padding:2px 9px;border-radius:100px;font-weight:700}
+.tc{background:rgba(0,212,255,.12);color:var(--accent)}.tp{background:rgba(124,58,237,.2);color:#a78bfa}.tr{background:rgba(255,77,109,.12);color:var(--accent2)}.tg{background:rgba(245,197,24,.12);color:var(--gold)}.tgr{background:rgba(16,185,129,.12);color:#34d399}
+.nsp{margin-bottom:48px}
+.ggrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:20px;margin-top:48px}
+.gc{background:var(--surface);border:1px solid var(--border);border-radius:14px;padding:28px;transition:.3s;position:relative;overflow:hidden}
+.gc::before{content:'';position:absolute;top:0;left:0;right:0;height:3px}
+.gc.g1::before{background:linear-gradient(90deg,var(--accent),var(--accent3))}.gc.g2::before{background:linear-gradient(90deg,var(--gold),#f97316)}.gc.g3::before{background:linear-gradient(90deg,var(--accent2),var(--accent3))}.gc.g4::before{background:linear-gradient(90deg,#10b981,#06b6d4)}.gc.g5::before{background:linear-gradient(90deg,#a78bfa,var(--accent2))}.gc.g6::before{background:linear-gradient(90deg,var(--gold),#10b981)}
+.gc:hover{transform:translateY(-4px);border-color:rgba(0,212,255,.3)}
+.gi{font-size:2.4rem;margin-bottom:14px}.gc h3{font-weight:700;margin-bottom:8px;font-size:1rem}.gc p{color:var(--muted);font-size:.85rem;line-height:1.6}
+.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(195px,1fr));gap:18px;margin-top:48px}
+.mcard{background:var(--surface2);border:1px solid var(--border);border-radius:12px;padding:26px 18px;text-align:center;transition:.3s;cursor:pointer;text-decoration:none;display:block;color:inherit}
+.mcard:hover{border-color:var(--accent);transform:translateY(-4px);box-shadow:0 12px 40px rgba(0,212,255,.15)}
+.mico{font-size:2.8rem;margin-bottom:12px}.mcard h4{font-weight:700;margin-bottom:5px;font-size:.9rem}.mcard p{font-size:.77rem;color:var(--muted);line-height:1.5}
+.mbadge{display:inline-block;margin-top:10px;font-size:.68rem;padding:3px 10px;border-radius:100px;background:rgba(0,212,255,.1);color:var(--accent);font-weight:700}
+.ablock{display:grid;grid-template-columns:320px 1fr;gap:72px;align-items:center}
+.aav{aspect-ratio:1;border-radius:24px;background:linear-gradient(135deg,var(--surface2) 0%,rgba(0,212,255,.05) 100%);border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-size:7rem}
+.aname{font-family:'Bebas Neue',sans-serif;font-size:2.4rem;line-height:1.1;margin-bottom:4px}
+.atitle{font-family:'JetBrains Mono',monospace;font-size:.82rem;color:var(--gold);letter-spacing:1px;margin-bottom:20px}
+.abio{color:var(--muted);line-height:1.8;font-size:.92rem;margin-bottom:16px}
+.abadges{display:flex;gap:10px;flex-wrap:wrap}.ab{font-size:.76rem;padding:5px 14px;border-radius:100px;border:1px solid var(--border);color:var(--muted);font-weight:500}
+.pw{background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+.pi{max-width:760px;margin:0 auto;padding:100px 48px;text-align:center}
+.pcard{background:var(--surface2);border:1px solid rgba(0,212,255,.3);border-radius:24px;padding:48px 40px;position:relative;overflow:hidden}
+.pcard::before{content:'';position:absolute;top:0;left:0;right:0;height:4px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2))}
+.pbadge{display:inline-block;background:linear-gradient(135deg,var(--accent3),var(--accent2));color:#fff;font-size:.78rem;font-weight:700;padding:4px 16px;border-radius:100px;letter-spacing:2px;text-transform:uppercase;margin-bottom:20px}
+.pval{font-family:'Bebas Neue',sans-serif;font-size:5rem;color:var(--accent);line-height:1;margin:12px 0 4px}
+.pper{color:var(--muted);font-size:.9rem;margin-bottom:32px}
+.pitems{list-style:none;margin-bottom:36px;text-align:left;display:inline-block}
+.pitems li{padding:8px 0;display:flex;align-items:center;gap:10px;font-size:.92rem}
+.pitems li::before{content:'✓';color:var(--accent);font-weight:900;font-size:1rem}
+.bti{display:inline-block;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:18px 52px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:1.1rem;cursor:pointer;letter-spacing:1px;transition:.3s;text-decoration:none}
+.bti:hover{transform:translateY(-3px);box-shadow:0 16px 48px rgba(0,212,255,.4)}
+.ipn{margin-top:14px;font-size:.78rem;color:var(--muted);display:flex;align-items:center;justify-content:center;gap:6px}
+footer{background:var(--surface);border-top:1px solid var(--border);padding:48px;text-align:center}
+.flogo{font-family:'Bebas Neue',sans-serif;font-size:1.5rem;letter-spacing:3px;color:var(--accent);margin-bottom:12px}
+.flinks{display:flex;gap:24px;justify-content:center;flex-wrap:wrap;margin-bottom:20px}
+.flinks a{color:var(--muted);text-decoration:none;font-size:.82rem;transition:.3s}.flinks a:hover{color:var(--accent)}
+.fcopy{color:var(--muted);font-size:.76rem;line-height:1.8}
+.fi{opacity:0;transform:translateY(30px);transition:opacity .7s ease,transform .7s ease}.fi.vis{opacity:1;transform:none}
+@media(max-width:768px){nav{padding:12px 20px}.nav-links{display:none}.sw{padding:72px 20px}.ni{padding:0 20px}.ablock{grid-template-columns:1fr}.aav{width:160px;font-size:4rem;margin:0 auto}.pi{padding:72px 20px}.stat{padding:18px 24px}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">MITe</div>
+  <ul class="nav-links">
+    <li><a href="#modulos">Módulos</a></li>
+    <li><a href="#gamificacao">Gamificação</a></li>
+    <li><a href="#materiais">Materiais</a></li>
+    <li><a href="#autor">Mentor</a></li>
+    <li><a href="#preco">Investimento</a></li>
+  </ul>
+  <a href="aluno/inscricao.html" class="nav-cta">INSCREVA-SE</a>
+</nav>
+
+<section class="hero">
+  <div class="hero-bg"></div>
+  <div class="grid-ov"></div>
+  <div class="hero-content">
+    <div class="badge-live"><span class="bdot"></span> 100% Online · Automatizada · Sem Mentor Humano</div>
+    <h1>
+      <div class="l1">MENTORIA DA</div>
+      <div class="l2">INOVAÇÃO TECNOLÓGICA</div>
+      <div class="l3">EM EDUCAÇÃO</div>
+    </h1>
+    <p class="hero-sub">Transforme sua prática educacional e institucional com tecnologia de ponta. Aprenda no seu ritmo, com inteligência artificial e metodologia gamificada.</p>
+    <p class="atag">⟩ por Luiz de Castro — Mestre em Gestão e Adm. de Empresas</p>
+    <div class="hbtns">
+      <a href="aluno/inscricao.html" class="btn-p">🚀 Quero Me Inscrever</a>
+      <a href="#modulos" class="btn-o">▶ Ver Módulos</a>
+    </div>
+    <div class="stats-row">
+      <div class="stat"><div class="snum">8</div><div class="slbl">Módulos</div></div>
+      <div class="stat"><div class="snum">48</div><div class="slbl">Aulas</div></div>
+      <div class="stat"><div class="snum">12</div><div class="slbl">Materiais</div></div>
+      <div class="stat"><div class="snum">100%</div><div class="slbl">Online</div></div>
+    </div>
+  </div>
+</section>
+
+<div class="nw" id="modulos">
+  <div class="ni">
+    <div class="nsp">
+      <div class="nsl">Trilha Principal</div>
+      <div class="nrt">🎯 Fundamentos da Inovação Tecnológica em Educação</div>
+      <div class="nrow">
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#0d1526,#1a2a4a)">🏛️<div class="mthg"></div><div class="mn">M01</div><div class="ms">🔓</div></div><div class="mb"><h4>O Novo Paradigma da Educação Digital</h4><p>Fundamentos da inovação na educação e o papel das tecnologias na transformação do ensino.</p><div class="mtags"><span class="t tc">6 Aulas</span><span class="t tgr">Disponível</span></div></div></div>
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#0d1526,#1a2a4a)">🔭<div class="mthg"></div><div class="mn">M02</div><div class="ms">🔓</div></div><div class="mb"><h4>Design Thinking Aplicado</h4><p>Metodologia de inovação centrada no aluno para criar soluções educacionais eficazes.</p><div class="mtags"><span class="t tc">5 Aulas</span><span class="t tgr">Disponível</span></div></div></div>
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#0d1526,#1a2a4a)">📊<div class="mthg"></div><div class="mn">M03</div><div class="ms">🔒</div></div><div class="mb"><h4>Dados e Analytics na Educação</h4><p>Análise de dados educacionais, Learning Analytics e indicadores de desempenho institucional.</p><div class="mtags"><span class="t tc">6 Aulas</span><span class="t tp">Bloqueado</span></div></div></div>
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#0d1526,#1a2a4a)">🤖<div class="mthg"></div><div class="mn">M04</div><div class="ms">🔒</div></div><div class="mb"><h4>IA e EdTech na Prática</h4><p>IA aplicada ao ensino, personalização de aprendizagem e ferramentas EdTech.</p><div class="mtags"><span class="t tc">7 Aulas</span><span class="t tp">Bloqueado</span></div></div></div>
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#0d1526,#1a2a4a)">☁️<div class="mthg"></div><div class="mn">M05</div><div class="ms">🔒</div></div><div class="mb"><h4>Transformação Digital nas Instituições</h4><p>Digitalização de instituições de ensino: plataformas, LMS, EAD e cultura de inovação.</p><div class="mtags"><span class="t tc">6 Aulas</span><span class="t tp">Bloqueado</span></div></div></div>
+      </div>
+    </div>
+    <div class="nsp">
+      <div class="nsl">Trilha Avançada</div>
+      <div class="nrt">🚀 Estratégia e Liderança em EdTech</div>
+      <div class="nrow">
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#1a0d26,#2a1a4a)">🌐<div class="mthg"></div><div class="mn">M06</div><div class="ms">🔒</div></div><div class="mb"><h4>Ecossistemas Educacionais</h4><p>Startups EdTech, parcerias estratégicas, aceleradoras e ecossistemas de inovação no ensino.</p><div class="mtags"><span class="t tc">5 Aulas</span><span class="t tr">Avançado</span></div></div></div>
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#1a0d26,#2a1a4a)">🔐<div class="mthg"></div><div class="mn">M07</div><div class="ms">🔒</div></div><div class="mb"><h4>Governança, LGPD e Ética Digital</h4><p>LGPD na educação, proteção de dados de alunos e governança de plataformas digitais.</p><div class="mtags"><span class="t tc">5 Aulas</span><span class="t tr">Avançado</span></div></div></div>
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#1a0d26,#2a1a4a)">🏆<div class="mthg"></div><div class="mn">M08</div><div class="ms">🔒</div></div><div class="mb"><h4>Projeto Final: Plano de Inovação Educacional</h4><p>Desenvolvimento de um plano completo de inovação tecnológica para sua instituição de ensino.</p><div class="mtags"><span class="t tc">8 Aulas</span><span class="t tg">Projeto</span></div></div></div>
+        <div class="mc"><div class="mth" style="background:linear-gradient(135deg,#1a1a0d,#2a2a1a)">🎓<div class="mthg"></div><div class="mn">BÔNUS</div><div class="ms">🎁</div></div><div class="mb"><h4>Masterclasses Exclusivas</h4><p>Cases reais: inovação no Duolingo, Khan Academy, Descomplica e Google for Education.</p><div class="mtags"><span class="t tg">Bônus</span><span class="t tgr">Especial</span></div></div></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="gamificacao"><div class="sw fi">
+  <div class="slabel">Sistema de Progressão</div>
+  <div class="stitle">Aprendizado que <span style="color:var(--accent)">Vicia</span></div>
+  <p class="ssub">Cada aula concluída te aproxima de recompensas reais. Nossa engine de gamificação mantém sua motivação no máximo.</p>
+  <div class="ggrid">
+    <div class="gc g1"><div class="gi">🏅</div><h3>Badges de Conquista</h3><p>Conquiste medalhas ao completar módulos, quizzes perfeitos e desafios especiais. Exiba no seu perfil.</p></div>
+    <div class="gc g2"><div class="gi">⚡</div><h3>Pontos XP</h3><p>Ganhe experiência por aula assistida, exercício entregue e quiz respondido. Suba de nível continuamente.</p></div>
+    <div class="gc g3"><div class="gi">🏆</div><h3>Ranking Nacional</h3><p>Compete no ranking dos alunos da mentoria. Os top 10 recebem certificados especiais e reconhecimento.</p></div>
+    <div class="gc g4"><div class="gi">🔥</div><h3>Streak Diário</h3><p>Mantenha sua sequência de dias de estudo. Streaks longos desbloqueiam conteúdos exclusivos e bônus.</p></div>
+    <div class="gc g5"><div class="gi">🗺️</div><h3>Mapa da Jornada</h3><p>Visualize toda sua trilha de aprendizado em um mapa interativo. Saiba onde está e para onde vai.</p></div>
+    <div class="gc g6"><div class="gi">🎯</div><h3>Missões Semanais</h3><p>Novas missões toda semana para manter o engajamento. Complete e ganhe XP dobrado.</p></div>
+  </div>
+</div></div>
+
+<div style="background:var(--surface);border-top:1px solid var(--border);border-bottom:1px solid var(--border)" id="materiais">
+  <div class="sw fi">
+    <div class="slabel">Suporte ao Aprendizado</div>
+    <div class="stitle">Materiais que fazem a <span style="color:var(--gold)">diferença</span></div>
+    <p class="ssub">Produzidos por especialistas para aprofundar e fixar cada conceito da mentoria.</p>
+    <div class="mgrid">
+      <a href="materiais/manual-aluno.html" class="mcard"><div class="mico">📘</div><h4>Manual do Aluno</h4><p>Guia completo de como aproveitar ao máximo a mentoria.</p><span class="mbadge">PDF + Online</span></a>
+      <a href="materiais/glossario.html" class="mcard"><div class="mico">📖</div><h4>Glossário Tech</h4><p>+200 termos de inovação, tecnologia e gestão explicados.</p><span class="mbadge">Interativo</span></a>
+      <a href="materiais/toolkit.html" class="mcard"><div class="mico">🧰</div><h4>Toolkit EdTech</h4><p>Templates, canvas e ferramentas prontas para inovação educacional.</p><span class="mbadge">Download</span></a>
+      <a href="materiais/cases.html" class="mcard"><div class="mico">🔬</div><h4>Biblioteca de Cases</h4><p>20+ estudos de caso reais de inovação no Brasil.</p><span class="mbadge">Premium</span></a>
+      <a href="materiais/ebooks.html" class="mcard"><div class="mico">📱</div><h4>E-books Exclusivos</h4><p>8 e-books aprofundados, um por módulo da mentoria.</p><span class="mbadge">PDF</span></a>
+      <a href="materiais/mapas.html" class="mcard"><div class="mico">🗺️</div><h4>Mapas Mentais</h4><p>Síntese visual de cada módulo para revisão rápida.</p><span class="mbadge">PDF</span></a>
+      <a href="materiais/quizzes.html" class="mcard"><div class="mico">❓</div><h4>Banco de Quizzes</h4><p>+300 questões para autoavaliação e fixação do conteúdo.</p><span class="mbadge">Online</span></a>
+      <a href="materiais/planilhas.html" class="mcard"><div class="mico">📊</div><h4>Planilhas Analíticas</h4><p>Modelos de Learning Analytics, KPIs educacionais e dashboards.</p><span class="mbadge">Excel/Sheets</span></a>
+      <a href="materiais/certificado.html" class="mcard"><div class="mico">🎓</div><h4>Certificado Digital</h4><p>Certificado verificável com QR Code ao concluir.</p><span class="mbadge">Digital</span></a>
+    </div>
+  </div>
+</div>
+
+<div id="autor"><div class="sw fi">
+  <div class="slabel">Quem criou esta mentoria</div>
+  <div class="stitle">Seu Mentor</div>
+  <div class="ablock">
+    <div class="aav">👨‍💼</div>
+    <div>
+      <div class="aname">Luiz de Castro</div>
+      <div class="atitle">// Mestre em Gestão e Adm. de Empresas</div>
+      <p class="abio">Com décadas de experiência em gestão organizacional e inovação tecnológica, Luiz de Castro desenvolveu esta mentoria para capacitar educadores, gestores e instituições de ensino a navegar com confiança no cenário educacional digital. Sua metodologia alia rigor acadêmico com aplicação prática, garantindo que cada conceito seja imediatamente aplicável no contexto profissional do aluno.</p>
+      <p class="abio">Especialista em transformação digital corporativa, foi responsável por projetos de inovação em instituições de ensino e organizações educacionais, e hoje compartilha todo esse conhecimento de forma estruturada, automatizada e acessível.</p>
+      <div class="abadges">
+        <span class="ab">Mestre em Gestão</span><span class="ab">Inovação Educacional</span><span class="ab">Transformação Digital nas Instituições</span><span class="ab">Tecnologias Educacionais</span><span class="ab">EdTech e E-Learning</span>
+      </div>
+    </div>
+  </div>
+</div></div>
+
+<div class="pw" id="preco"><div class="pi fi">
+  <div class="slabel" style="text-align:center">Seu Investimento</div>
+  <div class="stitle" style="text-align:center;margin-bottom:40px">Comece sua <span style="color:var(--accent)">Transformação</span></div>
+  <div class="pcard">
+    <span class="pbadge">Acesso Completo</span>
+    <div class="pval">R$997</div>
+    <div class="pper">pagamento único · acesso vitalício</div>
+    <ul class="pitems">
+      <li>8 módulos completos com 48 aulas</li>
+      <li>Sistema de gamificação com ranking nacional</li>
+      <li>9 materiais didáticos exclusivos</li>
+      <li>4 masterclasses com cases reais</li>
+      <li>Certificado digital verificável</li>
+      <li>Atualizações de conteúdo inclusas</li>
+      <li>Acesso vitalício na plataforma</li>
+      <li>Suporte via IA educacional 24h</li>
+    </ul>
+    <a href="aluno/inscricao.html" class="bti">🚀 GARANTIR MINHA VAGA AGORA</a>
+    <div class="ipn">🔒 Pagamento 100% seguro via <strong>InfinitePay</strong> &nbsp;·&nbsp; Todas as bandeiras &nbsp;·&nbsp; Parcelamento disponível</div>
+  </div>
+</div></div>
+
+<footer>
+  <div class="flogo">MITe</div>
+  <div class="flinks">
+    <a href="index.html">Início</a>
+    <a href="aluno/inscricao.html">Inscrição</a>
+    <a href="materiais/manual-aluno.html">Manual do Aluno</a>
+    <a href="materiais/glossario.html">Glossário</a>
+    <a href="admin/login.html">Área Admin</a>
+    <a href="#">Termos de Uso</a>
+    <a href="#">Política de Privacidade</a>
+  </div>
+  <div class="fcopy">© 2025 Mentoria da Inovação Tecnológica em Educação · Luiz de Castro · Todos os direitos reservados<br>Hospedado no GitHub · Administrado por <a href="https://www.lojasdecastro.com.br" style="color:var(--accent);text-decoration:none">www.lojasdecastro.com.br</a></div>
+</footer>
+<script>
+const obs=new IntersectionObserver((entries)=>{entries.forEach(e=>{if(e.isIntersecting)e.target.classList.add('vis')})},{threshold:.12})
+document.querySelectorAll('.fi').forEach(el=>obs.observe(el))
+</script>
+</body>
+</html>
