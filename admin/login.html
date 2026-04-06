@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Admin | Mentoria da Inovação Tecnológica em Educação</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050a14;--surface:#0d1526;--surface2:#111e35;--accent:#00d4ff;--accent2:#ff4d6d;--accent3:#7c3aed;--gold:#f5c518;--text:#e8eef7;--muted:#6b7fa3;--border:rgba(0,212,255,0.15);}
+*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh;display:flex;align-items:center;justify-content:center}
+.login-wrap{width:100%;max-width:420px;padding:24px}
+.login-card{background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:20px;padding:44px 36px;position:relative;overflow:hidden}
+.login-card::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--accent),var(--accent3),var(--accent2))}
+.shield{font-size:3rem;text-align:center;margin-bottom:16px}
+.lt{font-family:'Bebas Neue',sans-serif;font-size:2rem;text-align:center;margin-bottom:4px}
+.ls{text-align:center;color:var(--muted);font-size:.82rem;margin-bottom:32px;font-family:'JetBrains Mono',monospace}
+.fg{margin-bottom:18px}
+.fg label{display:block;font-size:.75rem;font-weight:600;color:var(--muted);letter-spacing:1px;text-transform:uppercase;margin-bottom:5px}
+.fg input{width:100%;background:var(--surface2);border:1px solid var(--border);border-radius:8px;padding:11px 14px;color:var(--text);font-family:'Outfit',sans-serif;font-size:.92rem;outline:none;transition:.3s}
+.fg input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,212,255,.08)}
+.btn{width:100%;background:linear-gradient(135deg,var(--accent),var(--accent3));color:#fff;border:none;padding:14px;border-radius:10px;font-family:'Outfit',sans-serif;font-weight:700;font-size:1rem;cursor:pointer;letter-spacing:1px;transition:.3s;margin-top:8px}
+.btn:hover{transform:translateY(-2px);box-shadow:0 10px 28px rgba(0,212,255,.35)}
+.errmsg{color:var(--accent2);font-size:.82rem;text-align:center;margin-top:12px;display:none}
+.warn{background:rgba(124,58,237,.1);border:1px solid rgba(124,58,237,.3);border-radius:8px;padding:10px 14px;font-size:.78rem;color:var(--muted);margin-bottom:20px;line-height:1.5}
+</style>
+</head>
+<body>
+<div class="login-wrap">
+  <div class="login-card">
+    <div class="shield">🛡️</div>
+    <div class="lt">Área Administrativa</div>
+    <div class="ls">// Acesso restrito à equipe MITe</div>
+    <div class="warn">⚠️ Esta área é exclusiva para administradores da Mentoria. O acesso não autorizado é vedado.</div>
+    <div class="fg">
+      <label>Usuário Admin</label>
+      <input type="text" id="user" placeholder="admin@lojasdecastro.com.br" autocomplete="username">
+    </div>
+    <div class="fg">
+      <label>Senha</label>
+      <input type="password" id="pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()">
+    </div>
+    <button class="btn" onclick="login()">🔐 ENTRAR NO PAINEL</button>
+    <div class="errmsg" id="err">Usuário ou senha incorretos. Tente novamente.</div>
+  </div>
+</div>
+<script>
+// Credenciais demo — em produção usar backend seguro com hash
+const ADMINS=[{user:'admin@lojasdecastro.com.br',pass:'MITe@2025!'}]
+function login(){
+  const u=document.getElementById('user').value.trim()
+  const p=document.getElementById('pass').value
+  const ok=ADMINS.find(a=>a.user===u&&a.pass===p)
+  if(ok){sessionStorage.setItem('mit_admin','1');window.location.href='painel.html'}
+  else{document.getElementById('err').style.display='block'}
+}
+</script>
+</body>
+</html>
