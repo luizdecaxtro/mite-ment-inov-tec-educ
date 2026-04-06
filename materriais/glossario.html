@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Glossário | MITe</title>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Outfit:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;700&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#050a14;--surface:#0d1526;--surface2:#111e35;--accent:#00d4ff;--accent2:#ff4d6d;--accent3:#7c3aed;--gold:#f5c518;--text:#e8eef7;--muted:#6b7fa3;--border:rgba(0,212,255,0.15);}
+*{margin:0;padding:0;box-sizing:border-box}body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;min-height:100vh}
+nav{display:flex;align-items:center;justify-content:space-between;padding:16px 48px;background:rgba(5,10,20,.95);border-bottom:1px solid var(--border);position:sticky;top:0;z-index:100}
+.nlogo{font-family:'Bebas Neue',sans-serif;font-size:1.2rem;letter-spacing:3px;color:var(--accent);text-decoration:none}
+.nback{color:var(--muted);text-decoration:none;font-size:.85rem;transition:.3s}.nback:hover{color:var(--accent)}
+.hero{text-align:center;padding:72px 24px 48px;background:radial-gradient(ellipse 70% 50% at 50% 40%,rgba(0,212,255,.06) 0%,transparent 70%)}
+.h-label{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);letter-spacing:3px;text-transform:uppercase;margin-bottom:10px}
+.h-title{font-family:'Bebas Neue',sans-serif;font-size:4rem;line-height:1;margin-bottom:12px}
+.h-title span{color:var(--accent)}
+.h-sub{color:var(--muted);font-size:.95rem;margin-bottom:32px}
+.search-wrap{max-width:560px;margin:0 auto 24px;position:relative}
+.search-wrap input{width:100%;background:var(--surface);border:1px solid rgba(0,212,255,.2);border-radius:12px;padding:14px 20px 14px 50px;color:var(--text);font-family:'Outfit',sans-serif;font-size:1rem;outline:none;transition:.3s}
+.search-wrap input:focus{border-color:var(--accent);box-shadow:0 0 0 4px rgba(0,212,255,.08)}
+.search-icon{position:absolute;left:16px;top:50%;transform:translateY(-50%);color:var(--muted);font-size:1.1rem}
+.filter-row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin-bottom:8px}
+.filter-btn{padding:6px 16px;border-radius:100px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'Outfit',sans-serif;font-size:.8rem;cursor:pointer;transition:.3s}
+.filter-btn:hover,.filter-btn.active{background:rgba(0,212,255,.1);border-color:var(--accent);color:var(--accent)}
+.counter{font-size:.8rem;color:var(--muted);text-align:center;margin-bottom:4px;font-family:'JetBrains Mono',monospace}
+.gloss-wrap{max-width:1000px;margin:0 auto;padding:0 24px 80px}
+.letter-section{margin-bottom:32px}
+.letter-head{font-family:'Bebas Neue',sans-serif;font-size:3rem;color:rgba(0,212,255,.15);line-height:1;margin-bottom:12px;border-bottom:1px solid var(--border);padding-bottom:8px}
+.term-card{background:var(--surface);border:1px solid var(--border);border-radius:10px;padding:18px 20px;margin-bottom:10px;transition:.3s;display:flex;align-items:flex-start;gap:16px}
+.term-card:hover{border-color:rgba(0,212,255,.3);transform:translateX(4px)}
+.term-cat{min-width:80px;font-size:.68rem;font-weight:700;padding:3px 8px;border-radius:100px;text-align:center;flex-shrink:0;margin-top:2px}
+.cat-gestao{background:rgba(0,212,255,.12);color:var(--accent)}
+.cat-tech{background:rgba(124,58,237,.15);color:#a78bfa}
+.cat-inovacao{background:rgba(16,185,129,.12);color:#34d399}
+.cat-dados{background:rgba(245,197,24,.12);color:var(--gold)}
+.cat-legal{background:rgba(255,77,109,.12);color:var(--accent2)}
+.term-body{}
+.term-name{font-weight:700;font-size:1rem;margin-bottom:4px;color:var(--text)}
+.term-sig{font-family:'JetBrains Mono',monospace;font-size:.72rem;color:var(--accent);margin-bottom:6px}
+.term-def{font-size:.88rem;color:var(--muted);line-height:1.65}
+.no-results{text-align:center;padding:64px;color:var(--muted)}
+</style>
+</head>
+<body>
+<nav>
+  <a href="../index.html" class="nlogo">MITe</a>
+  <a href="../index.html" class="nback">← Voltar ao site</a>
+</nav>
+
+<div class="hero">
+  <div class="h-label">Material Didático</div>
+  <div class="h-title">Glossário de <span>Inovação</span><br>e Tecnologia</div>
+  <p class="h-sub">Mais de 60 termos essenciais de Inovação, Gestão e Tecnologia explicados de forma clara e objetiva.</p>
+  <div class="search-wrap">
+    <span class="search-icon">🔍</span>
+    <input type="text" id="busca" placeholder="Buscar por termo ou palavra-chave..." oninput="renderGloss()">
+  </div>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('')" data-cat="">Todos</button>
+    <button class="filter-btn" onclick="setFilter('gestao')" data-cat="gestao">Gestão</button>
+    <button class="filter-btn" onclick="setFilter('tech')" data-cat="tech">Tecnologia</button>
+    <button class="filter-btn" onclick="setFilter('inovacao')" data-cat="inovacao">Inovação</button>
+    <button class="filter-btn" onclick="setFilter('dados')" data-cat="dados">Dados & BI</button>
+    <button class="filter-btn" onclick="setFilter('legal')" data-cat="legal">Legal & Gov.</button>
+  </div>
+  <div class="counter" id="counter"></div>
+</div>
+
+<div class="gloss-wrap" id="gloss-output"></div>
+
+<script>
+const TERMOS=[
+  {t:'Agile',sig:'',cat:'gestao',def:'Metodologia ágil de gerenciamento de projetos baseada em ciclos curtos (sprints), colaboração e adaptação contínua. Amplamente usada em desenvolvimento de software e gestão de produto.'},
+  {t:'Analytics',sig:'',cat:'dados',def:'Análise sistemática de dados para descobrir padrões, correlações e insights que auxiliam na tomada de decisão estratégica.'},
+  {t:'API',sig:'Application Programming Interface',cat:'tech',def:'Interface que permite a comunicação entre sistemas de software diferentes. Essencial para integrações entre plataformas e serviços digitais.'},
+  {t:'Balanced Scorecard',sig:'BSC',cat:'gestao',def:'Ferramenta de gestão estratégica que mede o desempenho organizacional em quatro perspectivas: financeira, clientes, processos internos e aprendizado.'},
+  {t:'Big Data',sig:'',cat:'dados',def:'Conjunto de tecnologias e práticas para coletar, armazenar e analisar volumes massivos de dados que excedem a capacidade de ferramentas tradicionais.'},
+  {t:'Blockchain',sig:'',cat:'tech',def:'Tecnologia de registro distribuído que armazena dados em blocos encadeados, garantindo imutabilidade e transparência. Usada em criptomoedas e contratos inteligentes.'},
+  {t:'Business Intelligence',sig:'BI',cat:'dados',def:'Conjunto de estratégias, tecnologias e ferramentas para coletar, analisar e apresentar dados de negócio, transformando-os em informação estratégica.'},
+  {t:'Canvas',sig:'Business Model Canvas',cat:'gestao',def:'Ferramenta visual de planejamento estratégico que mapeia os 9 componentes fundamentais de um modelo de negócio em um quadro único.'},
+  {t:'Change Management',sig:'Gestão da Mudança',cat:'gestao',def:'Abordagem estruturada para gerenciar a transição de pessoas, equipes e organizações de um estado atual para um estado futuro desejado.'},
+  {t:'Chatbot',sig:'',cat:'tech',def:'Software de inteligência artificial que simula conversas humanas, usado em atendimento ao cliente, suporte e automação de interações digitais.'},
+  {t:'Cloud Computing',sig:'Computação em Nuvem',cat:'tech',def:'Entrega de serviços de TI — como servidores, armazenamento, bancos de dados e software — via internet, eliminando a necessidade de infraestrutura física própria.'},
+  {t:'Corporate Governance',sig:'Governança Corporativa',cat:'gestao',def:'Sistema de regras, práticas e processos pelos quais uma empresa é dirigida e controlada, equilibrando os interesses de stakeholders.'},
+  {t:'CRM',sig:'Customer Relationship Management',cat:'gestao',def:'Sistema de gestão de relacionamento com clientes que centraliza dados de interações, histórico de compras e preferências para personalizar o atendimento.'},
+  {t:'Dashboard',sig:'Painel de Indicadores',cat:'dados',def:'Interface visual que apresenta de forma consolidada os principais KPIs e métricas de uma organização em tempo real ou por períodos definidos.'},
+  {t:'Data Driven',sig:'',cat:'dados',def:'Cultura organizacional e abordagem de tomada de decisão baseada em análise de dados e evidências, em vez de intuição ou experiência apenas.'},
+  {t:'Data Lake',sig:'',cat:'dados',def:'Repositório centralizado que armazena grandes volumes de dados em formato bruto (estruturados ou não), permitindo análises futuras flexíveis.'},
+  {t:'Design Thinking',sig:'',cat:'inovacao',def:'Metodologia de inovação centrada no ser humano que usa ferramentas de design para resolver problemas complexos através de empatia, ideação, prototipagem e testes.'},
+  {t:'DevOps',sig:'',cat:'tech',def:'Cultura e conjunto de práticas que integram desenvolvimento de software (Dev) com operações de TI (Ops), acelerando entregas com mais qualidade.'},
+  {t:'Digital Transformation',sig:'Transformação Digital',cat:'inovacao',def:'Processo de integração de tecnologias digitais em todas as áreas de uma organização, mudando fundamentalmente como ela opera e entrega valor aos clientes.'},
+  {t:'Disruption',sig:'Disrupção',cat:'inovacao',def:'Inovação que transforma profundamente mercados existentes ou cria novos, frequentemente tornando soluções anteriores obsoletas.'},
+  {t:'ERP',sig:'Enterprise Resource Planning',cat:'gestao',def:'Sistema integrado de gestão empresarial que unifica processos como finanças, RH, produção e logística em uma plataforma única.'},
+  {t:'ESG',sig:'Environmental, Social and Governance',cat:'gestao',def:'Critérios de avaliação empresarial relacionados a práticas ambientais, sociais e de governança corporativa, cada vez mais exigidos por investidores.'},
+  {t:'FinTech',sig:'',cat:'inovacao',def:'Empresas ou soluções tecnológicas que inovam nos serviços financeiros, como pagamentos digitais, empréstimos online, investimentos e seguros.'},
+  {t:'Framework',sig:'',cat:'tech',def:'Estrutura ou modelo de referência que fornece uma base para o desenvolvimento de sistemas, metodologias ou processos de forma padronizada.'},
+  {t:'Gamification',sig:'Gamificação',cat:'inovacao',def:'Aplicação de elementos e dinâmicas de jogos (pontos, rankings, badges, desafios) em contextos não-lúdicos para aumentar engajamento e motivação.'},
+  {t:'Growth Hacking',sig:'',cat:'inovacao',def:'Conjunto de estratégias focadas em crescimento rápido e escalável de produtos ou empresas, usando experimentos ágeis e análise de dados.'},
+  {t:'HRTech',sig:'',cat:'tech',def:'Tecnologias aplicadas à gestão de recursos humanos, incluindo recrutamento, treinamento, avaliação de desempenho e gestão de talentos.'},
+  {t:'IA Generativa',sig:'GenAI',cat:'tech',def:'Inteligência artificial capaz de criar conteúdo novo — texto, imagem, código, áudio — baseada em padrões aprendidos de grandes volumes de dados.'},
+  {t:'Industry 4.0',sig:'Indústria 4.0',cat:'inovacao',def:'Quarta revolução industrial, caracterizada pela integração de sistemas ciber-físicos, IoT, IA e big data nos processos produtivos.'},
+  {t:'Inteligência Artificial',sig:'IA / AI',cat:'tech',def:'Campo da ciência da computação que desenvolve sistemas capazes de realizar tarefas que normalmente exigem inteligência humana, como reconhecimento de padrões e tomada de decisão.'},
+  {t:'IoT',sig:'Internet of Things',cat:'tech',def:'Rede de objetos físicos conectados à internet que coletam e trocam dados: sensores, máquinas, veículos, dispositivos domésticos e industriais.'},
+  {t:'KPI',sig:'Key Performance Indicator',cat:'gestao',def:'Indicador-chave de desempenho que mede o progresso em relação a objetivos estratégicos específicos. São mensuráveis, relevantes e alinhados à estratégia.'},
+  {t:'Lean',sig:'',cat:'gestao',def:'Filosofia de gestão focada na eliminação de desperdícios e na maximização do valor entregue ao cliente, originada no Sistema Toyota de Produção.'},
+  {t:'LGPD',sig:'Lei Geral de Proteção de Dados',cat:'legal',def:'Lei brasileira (13.709/2018) que regula o tratamento de dados pessoais por pessoas e organizações, inspirada no GDPR europeu.'},
+  {t:'Machine Learning',sig:'ML',cat:'tech',def:'Subcampo da IA em que sistemas aprendem automaticamente a partir de dados, melhorando suas previsões sem serem explicitamente programados.'},
+  {t:'Metaverse',sig:'Metaverso',cat:'tech',def:'Espaços virtuais persistentes e imersivos onde pessoas interagem em 3D, usando realidade virtual e aumentada. Impacta varejo, educação e colaboração.'},
+  {t:'MVP',sig:'Minimum Viable Product',cat:'inovacao',def:'Versão mínima de um produto com funcionalidades suficientes para ser lançada e validada com usuários reais, gerando aprendizado com o menor esforço possível.'},
+  {t:'OKR',sig:'Objectives and Key Results',cat:'gestao',def:'Metodologia de definição e acompanhamento de metas que conecta objetivos qualitativos (ambiciosos) a resultados-chave quantitativos e mensuráveis.'},
+  {t:'Open Innovation',sig:'Inovação Aberta',cat:'inovacao',def:'Modelo em que as empresas usam ideias e caminhos externos, além dos internos, para avançar em sua tecnologia e inovação, incluindo parcerias com startups.'},
+  {t:'People Analytics',sig:'',cat:'dados',def:'Uso de dados e análises sobre pessoas para melhorar decisões de RH: recrutamento, engajamento, retenção, desempenho e desenvolvimento.'},
+  {t:'Platform Economy',sig:'Economia de Plataforma',cat:'inovacao',def:'Modelo de negócio baseado em plataformas digitais que conectam produtores e consumidores, criando valor por meio de efeitos de rede (ex: Uber, Airbnb).'},
+  {t:'Product Owner',sig:'PO',cat:'gestao',def:'Papel no framework Scrum responsável por maximizar o valor do produto, gerenciando o backlog e definindo prioridades em nome dos stakeholders.'},
+  {t:'RPA',sig:'Robotic Process Automation',cat:'tech',def:'Tecnologia que usa robôs de software para automatizar tarefas repetitivas e baseadas em regras, liberando humanos para trabalho de maior valor.'},
+  {t:'SaaS',sig:'Software as a Service',cat:'tech',def:'Modelo de distribuição de software em que aplicações são acessadas via internet mediante assinatura, sem instalação local (ex: Slack, Google Workspace).'},
+  {t:'Scrum',sig:'',cat:'gestao',def:'Framework ágil para gerenciamento de projetos complexos, organizado em sprints (ciclos curtos), com papéis definidos e cerimônias regulares de alinhamento.'},
+  {t:'Startup',sig:'',cat:'inovacao',def:'Empresa nascente com modelo de negócio inovador, escalável e replicável, geralmente em fase de busca por um modelo que funcione antes de crescer.'},
+  {t:'Stakeholder',sig:'',cat:'gestao',def:'Qualquer indivíduo, grupo ou organização que pode afetar ou ser afetado pelas atividades de uma empresa: clientes, funcionários, investidores, comunidade.'},
+  {t:'Supply Chain',sig:'Cadeia de Suprimentos',cat:'gestao',def:'Rede de organizações, recursos, atividades e tecnologias envolvidas na criação e distribuição de um produto do fornecedor ao consumidor final.'},
+  {t:'UX',sig:'User Experience',cat:'tech',def:'Experiência do usuário — conjunto de aspectos relacionados à interação de uma pessoa com um produto ou serviço digital, focado em usabilidade e satisfação.'},
+  {t:'Venture Capital',sig:'VC',cat:'inovacao',def:'Capital de risco — investimento em empresas emergentes (geralmente startups) com alto potencial de crescimento, em troca de participação societária.'},
+  {t:'Zero Trust',sig:'',cat:'legal',def:'Modelo de segurança cibernética que não confia automaticamente em nenhum usuário ou sistema, exigindo verificação constante mesmo dentro da rede corporativa.'},
+]
+
+let catFiltro=''
+function setFilter(cat){
+  catFiltro=cat
+  document.querySelectorAll('.filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.cat===cat))
+  renderGloss()
+}
+
+function renderGloss(){
+  const busca=document.getElementById('busca').value.toLowerCase()
+  let filtrado=TERMOS
+  if(catFiltro)filtrado=filtrado.filter(t=>t.cat===catFiltro)
+  if(busca)filtrado=filtrado.filter(t=>t.t.toLowerCase().includes(busca)||t.def.toLowerCase().includes(busca)||(t.sig&&t.sig.toLowerCase().includes(busca)))
+  filtrado.sort((a,b)=>a.t.localeCompare(b.t,'pt-BR'))
+  document.getElementById('counter').textContent=`${filtrado.length} termo${filtrado.length!==1?'s':''} encontrado${filtrado.length!==1?'s':''}`
+  if(!filtrado.length){document.getElementById('gloss-output').innerHTML='<div class="no-results">🔍 Nenhum termo encontrado para sua busca.</div>';return}
+  // Agrupar por letra
+  const byLetter={}
+  filtrado.forEach(t=>{const l=t.t[0].toUpperCase();if(!byLetter[l])byLetter[l]=[];byLetter[l].push(t)})
+  const catNames={gestao:'Gestão',tech:'Tecnologia',inovacao:'Inovação',dados:'Dados & BI',legal:'Legal & Gov.'}
+  const catClass={gestao:'cat-gestao',tech:'cat-tech',inovacao:'cat-inovacao',dados:'cat-dados',legal:'cat-legal'}
+  document.getElementById('gloss-output').innerHTML=Object.keys(byLetter).sort().map(l=>`
+    <div class="letter-section">
+      <div class="letter-head">${l}</div>
+      ${byLetter[l].map(t=>`
+        <div class="term-card">
+          <span class="term-cat ${catClass[t.cat]}">${catNames[t.cat]}</span>
+          <div class="term-body">
+            <div class="term-name">${t.t}</div>
+            ${t.sig?`<div class="term-sig">${t.sig}</div>`:''}
+            <div class="term-def">${t.def}</div>
+          </div>
+        </div>`).join('')}
+    </div>`).join('')
+}
+
+renderGloss()
+</script>
+</body>
+</html>
